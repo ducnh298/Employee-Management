@@ -20,7 +20,7 @@ public class RoleEntity extends BaseEntity{
 	private String name;
 	
 	@Column
-	private String code;
+	private String detail;
 	
 	@ManyToMany(mappedBy = "roles")
 	private List<UserEntity> users = new ArrayList<UserEntity>();	
