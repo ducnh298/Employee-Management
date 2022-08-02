@@ -48,10 +48,7 @@ public class UserEntity extends BaseEntity {
 	@Column
 	private String email;
 
-	@Column
-	private String mainRole;
-
-	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<CheckinEntity> checkins = new ArrayList<CheckinEntity>();
 
 	@ManyToMany(fetch = FetchType.EAGER)

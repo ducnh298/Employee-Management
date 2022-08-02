@@ -15,4 +15,7 @@ public interface IUserService {
 	UserDTO findByCheckinCode(String checkinCode);
 	UserDTO findByUsername(String username);
 	List<UserDTO> findByFullnameIgnoreCaseContaining(String key);
+	List<UserDTO> findAllOrderByFullnameASC();
+	List<UserDTO> findAllOrderByFullnameDESC();
+	List<UserDTO> findAllEmployeeHavingRole(String roleName);
 }

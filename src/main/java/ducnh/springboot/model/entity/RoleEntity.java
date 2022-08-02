@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class RoleEntity extends BaseEntity{
 	@Column
 	private String detail;
 	
-	@ManyToMany(mappedBy = "roles")
+	@ManyToMany(mappedBy = "roles",fetch = FetchType.EAGER)
 	private List<UserEntity> users = new ArrayList<UserEntity>();	
 	
 }

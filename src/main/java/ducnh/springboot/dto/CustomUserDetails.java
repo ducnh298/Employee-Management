@@ -23,6 +23,8 @@ public class CustomUserDetails implements UserDetails{
 	private static final long serialVersionUID = 1L;
 	UserEntity user;
 
+	
+	
 	public Collection<? extends GrantedAuthority> getAuthorities(Collection<RoleEntity> roles) {
 	    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 	    for (RoleEntity role: roles) {
@@ -35,13 +37,13 @@ public class CustomUserDetails implements UserDetails{
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
-		return null;
+		return user.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return null;
+		return user.getUsername();
 	}
 
 	@Override
@@ -70,8 +72,18 @@ public class CustomUserDetails implements UserDetails{
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<RoleEntity> roles = user.getRoles();
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	    for (RoleEntity role: roles) {
+	        authorities.add(new SimpleGrantedAuthority(role.getName()));
+	    }
+
+	    return authorities;
+	}
+
+	public CustomUserDetails(UserEntity user) {
+		super();
+		this.user = user;
 	}
 
 

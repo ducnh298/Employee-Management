@@ -37,13 +37,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()                                                                                   
 		.authorizeRequests().antMatchers("/home","/authenticate").permitAll()
-//		.antMatchers("/employee-management/**").hasRole("HR")
-//		.antMatchers(HttpMethod.PUT,"/employee-management/**").hasRole("HR")
-//		.antMatchers(HttpMethod.DELETE,"/employee-management/**").hasRole("HR")
-		.antMatchers(HttpMethod.PUT,"/employee-management/*").hasAnyRole("HR","STAFF")
-		.antMatchers("/checkin/*").hasAnyRole("INTERN","HR","STAFF");
-//		.anyRequest().authenticated().and()
-//		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		.antMatchers("/employee-management","/sendmail/*").hasRole("HR")
+		.antMatchers(HttpMethod.GET,"/employee-management").hasAnyRole("HR","STAFF")
+		//.antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
+		.antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")
+		.anyRequest().authenticated().and()
+		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 		
 //		http.authorizeRequests().and().formLogin().loginPage("/login").loginProcessingUrl("/authentication")
@@ -78,4 +77,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
+	
 }

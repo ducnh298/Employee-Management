@@ -12,6 +12,9 @@ import ducnh.springboot.model.entity.CheckinEntity;
 
 @Repository
 public interface CheckinRepository extends JpaRepository<CheckinEntity, Long>{
-	@Query(value = "from checkin t where createdDate BETWEEN :startDate AND :endDate AND user_id = :id")
-	public List<CheckinEntity> getCheckinsBetweenDates(@Param("startDate") Timestamp startDate,@Param("endDate") Timestamp endDate, @Param("id") Long id);
+	@Query("FROM checkin t WHERE createdDate BETWEEN :startDate AND :endDate AND user_id = :id")
+	public List<CheckinEntity> getCheckinsBetweenDatesById(@Param("startDate") Timestamp startDate,@Param("endDate") Timestamp endDate, @Param("id") Long id);
+
+	@Query("FROM checkin t WHERE createdDate BETWEEN :startDate AND :endDate ")
+	public List<CheckinEntity> getCheckinsBetweenDates(@Param("startDate") Timestamp startDate,@Param("endDate") Timestamp endDate);
 }

@@ -10,5 +10,6 @@ import ducnh.springboot.dto.CheckinDTO;
 @Service
 public interface ICheckinService {
 	CheckinDTO save(String code);
-	List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate, Long id);
+	List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id);
+	List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate);
 }

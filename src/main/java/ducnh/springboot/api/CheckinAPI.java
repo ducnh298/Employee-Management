@@ -33,8 +33,8 @@ public class CheckinAPI {
 	}
 
 	@GetMapping(value = "/{id}/find-between-dates")
-	public List<CheckinDTO> getCheckinsBetweenDates(@RequestBody Map<String, Timestamp> date, @PathVariable Long id) {
-		return checkinService.getCheckinsBetweenDates(date.get("startDate"), date.get("endDate"), id);
+	public List<CheckinDTO> getCheckinsBetweenDatesyId(@RequestBody Map<String, Timestamp> date, @PathVariable Long id) {
+		return checkinService.getCheckinsBetweenDatesById(date.get("startDate"), date.get("endDate"), id);
 	}
 
 	@PostMapping

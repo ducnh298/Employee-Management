@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,8 +23,6 @@ public class UserDTO extends BaseDTO {
 	private String fullname;
 	
 	private String username;
-	
-	private String password;
 
 	private String checkinCode;
 
@@ -30,29 +30,10 @@ public class UserDTO extends BaseDTO {
 
 	private String email;
 
-	private String mainRole;
-
-	@Setter(AccessLevel.NONE)
+	@JsonIgnore
 	private List<CheckinDTO> checkins = new ArrayList<CheckinDTO>();
 
-	@Setter(AccessLevel.NONE)
+	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
-
-	public void setCheckins(List<CheckinDTO> checkins) {
-		if (checkins != null)
-			for (CheckinDTO item : checkins) {
-				item.setUser(null);
-				item.setCheckinCode(checkinCode);
-			}
-		this.checkins = checkins;
-	}
-
-	public void setRoles(Set<RoleDTO> roles) {
-		if (roles != null)
-			for (RoleDTO item : roles) {
-				item.setUsers(null);
-			}
-		this.roles = roles;
-	}
 
 }

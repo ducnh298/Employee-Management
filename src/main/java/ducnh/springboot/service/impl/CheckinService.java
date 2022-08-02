@@ -1,7 +1,7 @@
 package ducnh.springboot.service.impl;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,7 @@ import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.repository.CheckinRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.service.ICheckinService;
+import ducnh.springboot.utils.DateFormat;
 import ducnh.springboot.utils.DateUtils;
 
 @Service
@@ -36,50 +37,58 @@ public class CheckinService implements ICheckinService {
 
 	public CheckinDTO save(String checkinCode) {
 		CheckinDTO checkinDTO = new CheckinDTO();
+		LocalDateTime dateTimeNow = LocalDateTime.now();
 
 		UserEntity user = userRepository.findByCheckinCode(checkinCode);
 		checkinDTO.setUser(mapper.map(user, UserDTO.class));
-		
-		List<CheckinEntity> checkins = user.getCheckins();
-		CheckinEntity lastCheckin = new CheckinEntity();
-		Date lastCheckinDate = Date.valueOf("2021-08-29");
 
-		if (checkins.size() >= 1) {
-			lastCheckin = checkins.get(checkins.size() - 1);
-			lastCheckinDate = new Date(lastCheckin.getCreatedDate().getTime());
-		}
-
-		Date dateNow = new Date(System.currentTimeMillis());
-		LocalDateTime dateTimeNow = LocalDateTime.now();
+		Timestamp dateNowPlus1 = null;
+		List<CheckinDTO> list = new ArrayList<CheckinDTO>();
+	
+			try {
+				dateNowPlus1 = dateUtils.addDay(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md),1);
+				list = getCheckinsBetweenDatesById(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md), dateNowPlus1, user.getId());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
-		if (dateUtils.isSameDay(dateNow, lastCheckinDate)) {
+		if (list.size()>0) {
 			int resultTime = dateUtils.checkoutEarly(dateTimeNow);
 			checkinDTO.setResultTime(resultTime);
-			if (resultTime<=0)
+			if (resultTime <= 0)
 				checkinDTO.setStatus("checkout ok");
 			else
 				checkinDTO.setStatus("checkout early");
-		} else if (!dateUtils.isSameDay(dateNow, lastCheckinDate)) {
+		} else {
 			int resultTime = dateUtils.checkinLate(dateTimeNow);
 			checkinDTO.setResultTime(resultTime);
-			if (resultTime<=15)
+			if (resultTime <= 15)
 				checkinDTO.setStatus("checkin ok");
 			else
 				checkinDTO.setStatus("checkin late");
-		} else {
-			checkinDTO.setStatus("unknown");
-			checkinDTO.setResultTime(0);
 		}
 		
-		checkinDTO.setDayOfWeek(dateNow.toLocalDate().getDayOfWeek().toString());
+		checkinDTO.setDayOfWeek(dateTimeNow.toLocalDate().getDayOfWeek().toString());
 		return mapper.map(checkinRepository.save(mapper.map(checkinDTO, CheckinEntity.class)), CheckinDTO.class);
 
 	}
 
-	public List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate,Long id) {
+
+	@Override
+	public List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id) {
 		List<CheckinDTO> result = new ArrayList<CheckinDTO>();
-		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDates(startDate, endDate, id);
-		for(CheckinEntity entity: entities)
+		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDatesById(startDate, endDate, id);
+		for (CheckinEntity entity : entities)
+			result.add(mapper.map(entity, CheckinDTO.class));
+		return result;
+	}
+
+	@Override
+	public List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate) {
+		List<CheckinDTO> result = new ArrayList<CheckinDTO>();
+		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDates(startDate, endDate);
+		for (CheckinEntity entity : entities)
 			result.add(mapper.map(entity, CheckinDTO.class));
 		return result;
 	}

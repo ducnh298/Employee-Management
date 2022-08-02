@@ -22,8 +22,6 @@ public class UserConverter {
 			old.setId(dto.getId());
 		if (dto.getFullname() != null)
 			old.setFullname(dto.getFullname());
-		if (dto.getMainRole() != null)
-			old.setMainRole(dto.getMainRole());
 		if (dto.getDateOfBirth() != null)
 			old.setDateOfBirth(dto.getDateOfBirth());
 		if (dto.getEmail() != null)

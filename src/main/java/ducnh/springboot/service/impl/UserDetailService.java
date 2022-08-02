@@ -38,7 +38,7 @@ public class UserDetailService implements UserDetailsService {
         for(RoleEntity role: roles) 
         	grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
         
-		User userDetails = new User(user.getUsername(), user.getPassword(), grantedAuthorities);
+		UserDetails  userDetails = new User(user.getUsername(), user.getPassword(), grantedAuthorities);
 		System.out.println(userDetails);
 		return userDetails;
 	}

@@ -56,7 +56,7 @@ public class UserService implements IUserService {
 			UserEntity oldUserEntity = userRepository.findById(user.getId()).orElse(null);
 			userEntity = converter.toEntity(user, oldUserEntity);
 		} else {
-			user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+			userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
 			String code = "";
 			while (userRepository.findByCheckinCode(code) != null || code.equals("")) {
 				code = randomUtils.randCheckinCode();
@@ -111,6 +111,33 @@ public class UserService implements IUserService {
 	@Override
 	public UserDTO findByUsername(String username) {
 		return modelMapper.map(userRepository.findByUsername(username),UserDTO.class);
+	}
+
+	@Override
+	public List<UserDTO> findAllOrderByFullnameASC() {
+		List<UserEntity> list = (List<UserEntity>) userRepository.findAllOrderByFullnameASC();
+		List<UserDTO> listDTO = new ArrayList<UserDTO>();
+		for (UserEntity item : list)
+			listDTO.add(modelMapper.map(item, UserDTO.class));
+		return listDTO;
+	}
+	
+	@Override
+	public List<UserDTO> findAllOrderByFullnameDESC() {
+		List<UserEntity> list = (List<UserEntity>) userRepository.findAllOrderByFullnameDESC();
+		List<UserDTO> listDTO = new ArrayList<UserDTO>();
+		for (UserEntity item : list)
+			listDTO.add(modelMapper.map(item, UserDTO.class));
+		return listDTO;
+	}
+
+	@Override
+	public List<UserDTO> findAllEmployeeHavingRole(String roleName) {
+		List<UserEntity> list = (List<UserEntity>) userRepository.findAllEmployeesHavingRole(roleName);
+		List<UserDTO> listDTO = new ArrayList<UserDTO>();
+		for (UserEntity item : list)
+			listDTO.add(modelMapper.map(item, UserDTO.class));
+		return listDTO;
 	}
 
 }
