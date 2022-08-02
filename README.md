@@ -20,5 +20,5 @@ Employee:
 
 
 note:
-Sử dụng email service(e.g gửi mail cho employee khi employee được create...)
-Cronjob gửi mail thông báo quên checkin/checkout hàng ngày.
+- Sử dụng email service(e.g gửi mail cho employee khi employee được create...)
+- Cronjob gửi mail thông báo quên checkin/checkout hàng ngày.
