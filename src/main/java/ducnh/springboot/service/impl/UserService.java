@@ -20,6 +20,7 @@ import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.repository.RoleRepository;
 import ducnh.springboot.repository.UserRepository;
+import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
 import ducnh.springboot.utils.RandomUtils;
 
@@ -30,7 +31,7 @@ public class UserService implements IUserService {
 	UserRepository userRepository;
 
 	@Autowired
-	RoleRepository roleRepository;
+	IRoleService roleService;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -41,14 +42,13 @@ public class UserService implements IUserService {
 	@Autowired
 	RandomUtils randomUtils;
 
-	@Transactional(rollbackOn = Exception.class) 
+	@Transactional(rollbackOn = Exception.class)
 	public UserDTO save(UserDTO user) {
 		UserEntity userEntity = new UserEntity();
 
 		if (user.getRoles() != null) {
 			user.setRoles(user.getRoles().stream().map(role -> {
-				RoleEntity roleEntity = roleRepository.findById(role.getId()).orElse(null);
-				return modelMapper.map(roleEntity, RoleDTO.class);
+				return roleService.findById(role.getId());
 			}).collect(Collectors.toSet()));
 		}
 
@@ -56,15 +56,15 @@ public class UserService implements IUserService {
 			UserEntity oldUserEntity = userRepository.findById(user.getId()).orElse(null);
 			userEntity = converter.toEntity(user, oldUserEntity);
 		} else {
+			userEntity = modelMapper.map(user, UserEntity.class);
 			userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
 			String code = "";
 			while (userRepository.findByCheckinCode(code) != null || code.equals("")) {
 				code = randomUtils.randCheckinCode();
 			}
-			user.setCheckinCode(code);
-			userEntity = modelMapper.map(user, UserEntity.class);
+			userEntity.setCheckinCode(code);
 		}
-		
+
 		userEntity = userRepository.save(userEntity);
 		user = modelMapper.map(userEntity, UserDTO.class);
 		return user;
@@ -110,7 +110,7 @@ public class UserService implements IUserService {
 
 	@Override
 	public UserDTO findByUsername(String username) {
-		return modelMapper.map(userRepository.findByUsername(username),UserDTO.class);
+		return modelMapper.map(userRepository.findByUsername(username), UserDTO.class);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class UserService implements IUserService {
 			listDTO.add(modelMapper.map(item, UserDTO.class));
 		return listDTO;
 	}
-	
+
 	@Override
 	public List<UserDTO> findAllOrderByFullnameDESC() {
 		List<UserEntity> list = (List<UserEntity>) userRepository.findAllOrderByFullnameDESC();

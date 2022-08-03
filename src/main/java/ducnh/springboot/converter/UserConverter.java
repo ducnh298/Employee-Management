@@ -1,6 +1,7 @@
 package ducnh.springboot.converter;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,15 @@ public class UserConverter {
 			old.setEmail(dto.getEmail());
 		if (dto.getCheckinCode() != null)
 			old.setCheckinCode(dto.getCheckinCode());
-		if (dto.getRoles().size() > 0) {
-			if(old.getRoles()==null)
-				old.setRoles(new HashSet<RoleEntity>());
+		if (dto.getRoles()!=null) {
+			Set<RoleEntity> roles = new HashSet<RoleEntity>();
+			if(old.getRoles()!=null)
+				roles = old.getRoles();
+			
 			for(RoleDTO role:dto.getRoles()) {
-				old.getRoles().add(mapper.map(role,RoleEntity.class));
+				roles.add(mapper.map(role, RoleEntity.class));
 			}
+			old.setRoles(roles);
 		}
 
 		return old;

@@ -30,10 +30,9 @@ public class UserDTO extends BaseDTO {
 
 	private String email;
 
-	@JsonIgnore
+	@JsonIgnore	
 	private List<CheckinDTO> checkins = new ArrayList<CheckinDTO>();
 
-	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
 
 }
