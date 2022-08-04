@@ -33,8 +33,10 @@ ducnh\springboot\dto\CheckinDTO.class
 ducnh\springboot\api\RoleAPI.class
 ducnh\springboot\dto\UserDTO.class
 ducnh\springboot\config\MultiLangugeConfig.class
+ducnh\springboot\converter\RoleConverter.class
 ducnh\springboot\repository\CheckinRepository.class
 ducnh\springboot\utils\RandomUtils.class
 ducnh\springboot\dto\RoleDTO.class
 ducnh\springboot\service\impl\MailService.class
 ducnh\springboot\api\EmployeeAPI.class
+ducnh\springboot\model\entity\WorkingHourEntity.class

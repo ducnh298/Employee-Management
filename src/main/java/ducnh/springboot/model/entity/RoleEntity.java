@@ -12,21 +12,21 @@ import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString; 
+import lombok.ToString;
 
-@Entity(name="role")
+@Entity(name = "role")
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class RoleEntity extends BaseEntity{
+public class RoleEntity extends BaseEntity {
 	@Column
 	private String name;
-	
+
 	@Column
 	private String detail;
-	
-	@ManyToMany(mappedBy = "roles",fetch = FetchType.LAZY)
-	private List<UserEntity> users = new ArrayList<UserEntity>();	
-	
+
+	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	private List<UserEntity> users = new ArrayList<UserEntity>();
+
 }

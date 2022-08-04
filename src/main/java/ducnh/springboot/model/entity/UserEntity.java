@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -48,11 +49,16 @@ public class UserEntity extends BaseEntity {
 	@Column
 	private String email;
 
-	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	private List<CheckinEntity> checkins = new ArrayList<CheckinEntity>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<RoleEntity> roles = new HashSet<RoleEntity>();
 
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="workinghour_id",referencedColumnName = "id")
+	@JsonIgnore
+	private WorkingHourEntity workinghour;
+	
 }

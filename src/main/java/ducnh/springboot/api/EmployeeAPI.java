@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.dto.WorkingHourDTO;
+import ducnh.springboot.model.entity.WorkingHourEntity;
+import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.IUserService;
+import ducnh.springboot.service.IWorkingHourService;
 
 @RestController
 @RequestMapping("/employee-management")
@@ -27,7 +31,13 @@ public class EmployeeAPI {
 	IUserService userService;
 
 	@Autowired
+	IWorkingHourService workingHourService;
+
+	@Autowired
 	IMailService mailService;
+	
+	@Autowired
+	WorkingHourRepository workingHourRepository;
 
 	@GetMapping(value = "/admin")
 	@Secured({"HR"})
@@ -73,8 +83,6 @@ public class EmployeeAPI {
 	@PostMapping
 	@Secured("HR")
 	public UserDTO createUser(@RequestBody UserDTO user) {
-		for(RoleDTO role:user.getRoles())
-			System.out.println(role.getId()+" "+role.toString());
 		user=userService.save(user);
 		if(user!=null){
 			StringBuilder content = new StringBuilder("");
@@ -87,7 +95,7 @@ public class EmployeeAPI {
 			content.append("<br><br>Your username: ");
 			content.append(user.getUsername());
 			content.append("<br>Your default password: 12345</h2>");
-			//System.out.println(mailService.sendMail(user.getEmail()," NCC's Employee Account Created " ,content.toString()));
+			System.out.println(mailService.sendMail(user.getEmail()," NCC's Employee Account Created " ,content.toString()));
 		}
 		return user;
 	}
@@ -106,4 +114,14 @@ public class EmployeeAPI {
 		return "deleted " + ids.length;
 	}
 
+	@PostMapping("/{id}/set-working-hour")
+	@Secured("HR")
+	public WorkingHourDTO setWorkingHour(@PathVariable("id")Long id,@RequestBody WorkingHourDTO workingHour) {
+		UserDTO user = new UserDTO();
+		user.setId(id);
+		workingHour.setUser(user);
+		return workingHourService.save(workingHour);
+	}
+	
+	
 }

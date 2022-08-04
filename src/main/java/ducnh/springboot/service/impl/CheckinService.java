@@ -40,7 +40,8 @@ public class CheckinService implements ICheckinService {
 		LocalDateTime dateTimeNow = LocalDateTime.now();
 
 		UserEntity user = userRepository.findByCheckinCode(checkinCode);
-		checkinDTO.setUser(mapper.map(user, UserDTO.class));
+		UserDTO userDTO =mapper.map(user, UserDTO.class);
+		checkinDTO.setUser(userDTO);
 
 		Timestamp dateNowPlus1 = null;
 		List<CheckinDTO> list = new ArrayList<CheckinDTO>();
@@ -54,14 +55,19 @@ public class CheckinService implements ICheckinService {
 			}
 		
 		if (list.size()>0) {
-			int resultTime = dateUtils.checkoutEarly(dateTimeNow);
+			int resultTime = 0;
+				resultTime = dateUtils.checkoutEarly(dateTimeNow,userDTO.getWorkingHour());
+			
 			checkinDTO.setResultTime(resultTime);
 			if (resultTime <= 0)
 				checkinDTO.setStatus("checkout ok");
 			else
 				checkinDTO.setStatus("checkout early");
 		} else {
-			int resultTime = dateUtils.checkinLate(dateTimeNow);
+			int resultTime = 0;
+				resultTime = dateUtils.checkinLate(dateTimeNow,userDTO.getWorkingHour());
+			
+			
 			checkinDTO.setResultTime(resultTime);
 			if (resultTime <= 15)
 				checkinDTO.setStatus("checkin ok");

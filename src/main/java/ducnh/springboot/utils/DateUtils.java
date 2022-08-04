@@ -13,6 +13,8 @@ import java.util.ResourceBundle;
 
 import org.springframework.stereotype.Component;
 
+import ducnh.springboot.dto.WorkingHourDTO;
+
 @Component
 public class DateUtils {
 
@@ -44,9 +46,10 @@ public class DateUtils {
 				&& date1.getDay() == date2.getDay());
 	}
 
-	public int checkinLate(LocalDateTime time) {
+
+public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
 		
-		String localDateTimeNow = LocalDate.now().toString() + " " + workingTime.getString("startTime");
+		String localDateTimeNow = LocalDate.now().toString() + " " + woDto.getStartMorningTime()+":00";
 		long workingDateTimeMiliseconds = new Long(0);
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
@@ -59,8 +62,8 @@ public class DateUtils {
 		return (int) (timeNow - workingDateTimeMiliseconds);
 	}
 
-	public int checkoutEarly(LocalDateTime time) {
-		String localDateWorkingTime = LocalDate.now().toString() + " " + workingTime.getString("endTime");
+	public int checkoutEarly(LocalDateTime time,WorkingHourDTO woDto) {
+		String localDateWorkingTime = LocalDate.now().toString() + " " + woDto.getEndAfternoonTime()+":00";
 		long workingDateTimeMiliseconds = new Long(0);
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;
@@ -72,5 +75,33 @@ public class DateUtils {
 		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
 		return (int) (workingDateTimeMiliseconds - timeNow);
 	}
-
+//	public int checkinLate(LocalDateTime time) {
+//		
+//		String localDateTimeNow = LocalDate.now().toString() + " " + workingTime.getString("startTime");
+//		long workingDateTimeMiliseconds = new Long(0);
+//		try {
+//			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
+//		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
+//		return (int) (timeNow - workingDateTimeMiliseconds);
+//	}
+//
+//	public int checkoutEarly(LocalDateTime time) {
+//		String localDateWorkingTime = LocalDate.now().toString() + " " + workingTime.getString("endTime");
+//		long workingDateTimeMiliseconds = new Long(0);
+//		try {
+//			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
+//		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
+//		return (int) (workingDateTimeMiliseconds - timeNow);
+//	}
+//	
 }

@@ -35,4 +35,6 @@ public class UserDTO extends BaseDTO {
 
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
 
+	@JsonIgnore
+	private WorkingHourDTO workingHour;
 }

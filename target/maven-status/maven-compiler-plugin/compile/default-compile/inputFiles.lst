@@ -1,6 +1,7 @@
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\dto\CustomUserDetails.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\config\JavaMailConfig.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\config\WebSecurityConfig.java
+C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\model\entity\WorkingHourEntity.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\service\IRoleService.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\repository\RoleRepository.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\service\impl\MailService.java
@@ -28,6 +29,7 @@ C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\duc
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\utils\DateUtils.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\api\CheckinAPI.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\model\entity\BaseEntity.java
+C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\converter\RoleConverter.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\dto\CheckinDTO.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\model\entity\UserEntity.java
 C:\Users\nguye\Desktop\JAVA-WEB- Workspace\Employee-Management\src\main\java\ducnh\springboot\config\MultiLangugeConfig.java
