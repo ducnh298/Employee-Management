@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,7 @@ public class RoleEntity extends BaseEntity {
 	@Column
 	private String detail;
 
+	@JsonIgnore
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
 	private List<UserEntity> users = new ArrayList<UserEntity>();
 

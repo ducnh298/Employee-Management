@@ -1,5 +1,7 @@
 package ducnh.springboot.api;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ducnh.springboot.dto.RoleDTO;
+import ducnh.springboot.projection.IRoleCount;
 import ducnh.springboot.service.IRoleService;
 
 @RestController
@@ -29,5 +32,11 @@ public class RoleAPI {
 	public RoleDTO findById(@PathVariable Long id) {
 		System.out.println("role id: "+id);
 		return roleService.findById(id);
+	}
+	
+	@GetMapping("/count-em")
+	@Secured("HR")
+	public List<IRoleCount> CountEmByRole() {
+		return roleService.RoleCountEm();
 	}
 }

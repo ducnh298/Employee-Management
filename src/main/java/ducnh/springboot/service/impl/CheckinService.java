@@ -14,6 +14,7 @@ import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.model.entity.CheckinEntity;
 import ducnh.springboot.model.entity.UserEntity;
+import ducnh.springboot.projection.CheckinsCount;
 import ducnh.springboot.repository.CheckinRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.service.ICheckinService;
@@ -39,7 +40,7 @@ public class CheckinService implements ICheckinService {
 		CheckinDTO checkinDTO = new CheckinDTO();
 		LocalDateTime dateTimeNow = LocalDateTime.now();
 
-		UserEntity user = userRepository.findByCheckinCode(checkinCode);
+		UserEntity user = userRepository.findByCheckinCode(UserEntity.class, checkinCode);
 		UserDTO userDTO =mapper.map(user, UserDTO.class);
 		checkinDTO.setUser(userDTO);
 
@@ -97,6 +98,13 @@ public class CheckinService implements ICheckinService {
 		for (CheckinEntity entity : entities)
 			result.add(mapper.map(entity, CheckinDTO.class));
 		return result;
+	}
+
+
+	@Override
+	public List<CheckinsCount> countCheckinsByUser() {
+		
+		return checkinRepository.countCheckinsByUser();
 	}
 
 }

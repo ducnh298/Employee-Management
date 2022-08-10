@@ -49,7 +49,7 @@ public class Scheduler {
 		for (CheckinDTO checkin : checkinToday) {
 			listEmCheckinToday.add(checkin.getUser());
 		}
-		List<UserDTO> listE = userService.findAll();
+		List<UserDTO> listE = userService.findAll(UserDTO.class);
 
 		for (UserDTO em : listE) {
 			if (!listEmCheckinToday.contains(em)) {
@@ -72,7 +72,7 @@ public class Scheduler {
 			e.printStackTrace();
 		}
 		Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
-		List<UserDTO> listE = userService.findAll();
+		List<UserDTO> listE = userService.findAll(UserDTO.class);
 
 		for (UserDTO em : listE) {
 			List<CheckinDTO> checkinToday = checkinService.getCheckinsBetweenDatesById(now, nowPlus1Day, em.getId());
@@ -89,7 +89,7 @@ public class Scheduler {
 	@Scheduled(cron = "00 15 20 ? * SAT")
 	public void weeklyCheckins() {
 
-		List<UserDTO> listE = userService.findAll();
+		List<UserDTO> listE = userService.findAll(UserDTO.class);
 		LocalDateTime saturday1 = LocalDateTime.now();
 		
 		for (UserDTO em : listE) {

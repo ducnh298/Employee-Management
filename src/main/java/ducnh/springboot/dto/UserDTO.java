@@ -9,6 +9,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,10 +19,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class UserDTO extends BaseDTO {
 
 	private String fullname;
-	
+
 	private String username;
 
 	private String checkinCode;
@@ -30,11 +32,23 @@ public class UserDTO extends BaseDTO {
 
 	private String email;
 
-	@JsonIgnore	
+	@Getter(AccessLevel.NONE)
+	private String userRoles;
+
+	@JsonIgnore
 	private List<CheckinDTO> checkins = new ArrayList<CheckinDTO>();
 
+	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
 
 	@JsonIgnore
 	private WorkingHourDTO workingHour;
+
+	public String getUserRoles() {
+		StringBuilder str = new StringBuilder("[ ");
+		for(RoleDTO role: getRoles())
+			str.append(role.getName()+" ");
+		str.append("]");
+		return str.toString();
+	}
 }

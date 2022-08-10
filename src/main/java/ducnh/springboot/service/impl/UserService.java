@@ -9,21 +9,14 @@ import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ducnh.springboot.converter.UserConverter;
-import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.model.entity.WorkingHourEntity;
-import ducnh.springboot.repository.RoleRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRoleService;
@@ -36,7 +29,7 @@ public class UserService implements IUserService {
 
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	WorkingHourRepository workingHourRepository;
 
@@ -69,6 +62,7 @@ public class UserService implements IUserService {
 //	public LocalTime endAfternoonTime = LocalTime.parse(endAfTime);
 
 	@Transactional(rollbackOn = Exception.class)
+	@Override
 	public UserDTO save(UserDTO user) {
 		UserEntity userEntity = new UserEntity();
 
@@ -79,27 +73,27 @@ public class UserService implements IUserService {
 		}
 
 		if (user.getId() != null) {
-			UserEntity oldUserEntity = userRepository.findById(user.getId()).orElse(null);
+			UserEntity oldUserEntity = userRepository.findById(UserEntity.class, user.getId());
 			userEntity = converter.toEntity(user, oldUserEntity);
 		} else {
 			userEntity = modelMapper.map(user, UserEntity.class);
 			userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
-			
+
 			String code = "";
-			while (userRepository.findByCheckinCode(code) != null || code.equals("")) {
+			while (userRepository.findByCheckinCode(UserEntity.class, code) != null || code.equals("")) {
 				code = randomUtils.randCheckinCode();
 			}
 			userEntity.setCheckinCode(code);
-			
+
 			WorkingHourEntity workingHourEntity = new WorkingHourEntity();
 			workingHourEntity.setStartMorningTime(LocalTime.of(8, 30));
 			workingHourEntity.setEndMorningTime(LocalTime.of(12, 00));
 			workingHourEntity.setStartAfternoonTime(LocalTime.of(13, 00));
 			workingHourEntity.setEndAfternoonTime(LocalTime.of(17, 30));
 			workingHourEntity.setUser(userEntity);
-			
+
 			workingHourEntity = workingHourRepository.save(workingHourEntity);
-			
+
 			userEntity.setWorkinghour(workingHourEntity);
 		}
 
@@ -108,70 +102,95 @@ public class UserService implements IUserService {
 		return user;
 	}
 
-	public List<UserDTO> findAll() {
-		List<UserEntity> list = (List<UserEntity>) userRepository.findAll();
-		List<UserDTO> listDTO = new ArrayList<UserDTO>();
-		for (UserEntity item : list)
-			listDTO.add(modelMapper.map(item, UserDTO.class));
-		return listDTO;
+	@Override
+	public <T> List<T> findAll(Class<T> classtype) {
+		if (classtype.equals(UserDTO.class)) {
+			List<UserEntity> list = userRepository.findAll();
+			List<T> listDTO = new ArrayList<T>();
+			for (UserEntity item : list)
+				listDTO.add(modelMapper.map(item, classtype));
+			return (List<T>) listDTO;
+		}
+		return (List<T>) userRepository.findBy(classtype, null);
 	}
 
+	@Override
 	public void delete(Long[] ids) {
 		for (Long id : ids)
 			userRepository.deleteById(id);
 	}
 
-	public UserDTO findById(Long id) {
-		UserEntity entity = userRepository.findById(id).orElse(null);
+	@Override
+	public <T> T findById(Class<T> classtype, Long id) {
+		UserEntity entity = userRepository.findById(UserEntity.class, id);
 		UserDTO user = modelMapper.map(entity, UserDTO.class);
 
-		return user;
+		return (T) user;
 	}
 
-	public UserDTO findByCheckinCode(String checkinCode) {
-		try {
-			return modelMapper.map(userRepository.findByCheckinCode(checkinCode), UserDTO.class);
-		} catch (NullPointerException e) {
-			System.out.println(e.getMessage());
+	@Override
+	public <T> T findByCheckinCode(Class<T> classtype, String checkinCode) {
+		if (classtype.equals(UserDTO.class)) {
+			try {
+				return (T) modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, checkinCode), classtype);
+			} catch (NullPointerException e) {
+				System.out.println(e.getMessage());
+			}
+			return null;
 		}
-		return null;
+		return userRepository.findByCheckinCode(classtype, checkinCode);
 	}
 
-	public List<UserDTO> findByFullnameIgnoreCaseContaining(String key) {
-		List<UserEntity> entities = userRepository.findByFullnameIgnoreCaseContaining(key);
-		List<UserDTO> result = new ArrayList<UserDTO>();
-		for (UserEntity entity : entities) {
-			result.add(modelMapper.map(entity, UserDTO.class));
+	@Override
+	public <T> List<T> findByFullnameIgnoreCaseContaining(Class<T> classtype, String key) {
+		if (classtype.equals(UserDTO.class)) {
+			List<UserEntity> entities = userRepository.findByFullnameIgnoreCaseContaining(UserEntity.class, key);
+			List<UserDTO> result = new ArrayList<UserDTO>();
+			for (UserEntity entity : entities) {
+				result.add(modelMapper.map(entity, UserDTO.class));
+			}
+			return (List<T>) result;
 		}
-		return result;
+		return userRepository.findByFullnameIgnoreCaseContaining(classtype, key);
 	}
 
 	@Override
-	public UserDTO findByUsername(String username) {
-		return modelMapper.map(userRepository.findByUsername(username), UserDTO.class);
+	public <T> T findByUsername(Class<T> classtype, String username) {
+		if (classtype.equals(UserDTO.class)) {
+			return (T) modelMapper.map(userRepository.findByUsername(UserEntity.class, username), UserDTO.class);
+		}
+		return userRepository.findByUsername(classtype, username);
 	}
 
 	@Override
-	public List<UserDTO> findAllOrderByFullnameASC() {
-		List<UserEntity> list = (List<UserEntity>) userRepository.findAll(Sort.by("fullname"));
-		List<UserDTO> listDTO = new ArrayList<UserDTO>();
-		for (UserEntity item : list)
-			listDTO.add(modelMapper.map(item, UserDTO.class));
-		return listDTO;
+	public <T> List<T> findAllOrderByFullnameASC(Class<T> classtype) {
+		if (classtype.equals(UserDTO.class)) {
+
+			List<UserEntity> list = userRepository.findBy(UserEntity.class, Sort.by("fullname"));
+			List<UserDTO> listDTO = new ArrayList<UserDTO>();
+			for (UserEntity item : list)
+				listDTO.add(modelMapper.map(item, UserDTO.class));
+			return (List<T>) listDTO;
+		}
+		return (List<T>) userRepository.findBy(classtype, Sort.by("fullname"));
 	}
 
 	@Override
-	public List<UserDTO> findAllOrderByFullnameDESC() {
-		List<UserEntity> list = (List<UserEntity>) userRepository.findAll(Sort.by("fullname").descending());
-		List<UserDTO> listDTO = new ArrayList<UserDTO>();
-		for (UserEntity item : list)
-			listDTO.add(modelMapper.map(item, UserDTO.class));
-		return listDTO;
+	public <T> List<T> findAllOrderByFullnameDESC(Class<T> classtype) {
+
+//		if (classtype.equals(UserDTO.class)) {
+//			List<UserEntity> list = userRepository.findBy(UserEntity.class, Sort.by("fullname").descending());
+//			List<UserDTO> listDTO = new ArrayList<UserDTO>();
+//			for (UserEntity item : list)
+//				listDTO.add(modelMapper.map(item, UserDTO.class));
+//			return (List<T>) listDTO;
+//		} else
+			return userRepository.findBy(classtype, Sort.by("fullname").descending());
 	}
 
 	@Override
 	public List<UserDTO> findAllEmployeeHavingRole(String roleName) {
-		List<UserEntity> list = (List<UserEntity>) userRepository.findAllEmployeesHavingRole(roleName);
+		List<UserEntity> list = userRepository.findAllEmployeesHavingRole(roleName);
 		List<UserDTO> listDTO = new ArrayList<UserDTO>();
 		for (UserEntity item : list)
 			listDTO.add(modelMapper.map(item, UserDTO.class));

@@ -1,5 +1,7 @@
 package ducnh.springboot.service.impl;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ducnh.springboot.converter.RoleConverter;
 import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.model.entity.RoleEntity;
+import ducnh.springboot.projection.IRoleCount;
 import ducnh.springboot.repository.RoleRepository;
 import ducnh.springboot.service.IRoleService;
 
@@ -33,5 +36,14 @@ public class RoleService implements IRoleService{
 		System.out.println("role found by id: "+id+" \n"+roleRepository.findById(id).toString());
 		return converter.toDTO(roleRepository.findById(id).orElse(null));
 	}
+
+	@Override
+	public List<IRoleCount> RoleCountEm() {
+//		return null;
+		
+		return roleRepository.RoleCountEm();
+	}
+
+	
 
 }

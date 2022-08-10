@@ -1,14 +1,10 @@
 package ducnh.springboot.dto;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ducnh.springboot.utils.DateFormat;
-import ducnh.springboot.utils.DateUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
