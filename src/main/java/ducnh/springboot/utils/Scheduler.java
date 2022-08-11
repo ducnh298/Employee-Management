@@ -68,7 +68,7 @@ public class Scheduler {
 		try {
 			now = dateUtils.parseLDT(LocalDateTime.now(), DateFormat.y_Md);
 		} catch (ParseException e) {
-			
+
 			e.printStackTrace();
 		}
 		Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
@@ -91,15 +91,15 @@ public class Scheduler {
 
 		List<UserDTO> listE = userService.findAll(UserDTO.class);
 		LocalDateTime saturday1 = LocalDateTime.now();
-		
+
 		for (UserDTO em : listE) {
-			Timestamp saturday=null;
+			Timestamp saturday = null;
 			Timestamp workingDay = null;
 			try {
 				saturday = dateUtils.parseLDT(saturday1, DateFormat.y_MdHms);
 				workingDay = dateUtils.parseLDT(dateUtils.addDay(saturday, -5).toLocalDateTime(), DateFormat.y_MdHms);
 			} catch (ParseException e) {
-			
+
 				e.printStackTrace();
 			}
 
@@ -121,7 +121,7 @@ public class Scheduler {
 					if (checkin1Day.size() > 1)
 						content.append(checkin1Day.get(checkin1Day.size() - 1).toString());
 					else
-						content.append("<font color=red>"+checkin1Day.get(0).getDayOfWeek() + " - "
+						content.append("<font color=red>" + checkin1Day.get(0).getDayOfWeek() + " - "
 								+ sdf2.format(checkin1Day.get(0).getCreatedDate())
 								+ " You forgot to checkout, penalty = 20.000vnd.</font>");
 				} else {
@@ -134,14 +134,15 @@ public class Scheduler {
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(Timestamp.valueOf(saturday1).getTime());
-			
+
 //			System.out.println(calendar.get(Calendar.WEEK_OF_YEAR)-1 + "th Weekly Checkin list and penalties: "
 //					+ sdf.format(dateUtils.addDay(saturday, -5)).substring(0, 2) + " -> " + sdf.format(saturday) + "\n"
 //					+ content.toString());
 
 			mailService.sendMail(em.getEmail(),
-					calendar.get(Calendar.WEEK_OF_YEAR)-1 + "th Weekly Checkin list and penalties: "
-							+ sdf.format(dateUtils.addDay(saturday, -5)).substring(0, 2) + " -> " + sdf.format(saturday),
+					calendar.get(Calendar.WEEK_OF_YEAR) - 1 + "th Weekly Checkin list and penalties: "
+							+ sdf.format(dateUtils.addDay(saturday, -5)).substring(0, 2) + " -> "
+							+ sdf.format(saturday),
 					content.toString());
 		}
 	}

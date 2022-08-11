@@ -14,7 +14,7 @@ import lombok.Setter;
 public abstract class BaseDTO {
 
 	private Long id;
-	
+
 	@JsonIgnore
 	private Timestamp createdDate;
 	@JsonIgnore

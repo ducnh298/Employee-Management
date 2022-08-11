@@ -30,13 +30,13 @@ public class HomeAPI {
 
 	@Autowired
 	UserDetailService userDetailService;
-	
+
 	@Autowired
 	IMailService mailService;
 
 	@GetMapping("/home")
 	public String homePage() {
-		
+
 		return "Welcome!";
 	}
 
@@ -44,22 +44,23 @@ public class HomeAPI {
 	public JWTResponse authenticate(@RequestBody Map<String, String> user) throws Exception {
 		System.out.println("Authenticating...");
 		try {
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.get("username"), user.get("password")));
+			authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(user.get("username"), user.get("password")));
 
 		} catch (BadCredentialsException e) {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 		UserDetails userDetails = userDetailService.loadUserByUsername(user.get("username"));
 		String token = jwtProvider.generateToken(userDetails);
-		
+
 		return new JWTResponse(token);
 	}
-	
-	 @PostMapping("/sendmail")
-     public String sendEmail(@RequestBody Map<String, String> json) throws MessagingException {
-         String subject = json.get("subject");
-         String content = json.get("content");
-		 
+
+	@PostMapping("/sendmail")
+	public String sendEmail(@RequestBody Map<String, String> json) throws MessagingException {
+		String subject = json.get("subject");
+		String content = json.get("content");
+
 		return mailService.sendMail("barusu2982@gmail.com", subject, content);
-     }
+	}
 }

@@ -9,6 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -30,6 +33,7 @@ public class RoleEntity extends BaseEntity {
 
 	@JsonIgnore
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
 	private List<UserEntity> users = new ArrayList<UserEntity>();
 
 }

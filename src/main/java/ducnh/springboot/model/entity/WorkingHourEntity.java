@@ -6,6 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,5 +28,6 @@ public class WorkingHourEntity extends BaseEntity {
 	private LocalTime endAfternoonTime;
 
 	@OneToOne(mappedBy = "workinghour")
+	@Fetch(FetchMode.SELECT)
 	private UserEntity user;
 }

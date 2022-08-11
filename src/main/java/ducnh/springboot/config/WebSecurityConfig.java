@@ -3,6 +3,7 @@ package ducnh.springboot.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,22 +29,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userService) 
-				.passwordEncoder(passwordEncoder()); 
+		auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()                                                                                   
-		.authorizeRequests().antMatchers("/home","/authenticate").permitAll()
+		http.csrf().disable().authorizeRequests().antMatchers("/home", "/authenticate").permitAll()
 //		.antMatchers("/employee-management","/sendmail/*").hasRole("HR")
-//		.antMatchers(HttpMethod.GET,"/employee-management").hasAnyRole("HR","STAFF")
-		//.antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
-		//.antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")
-		.anyRequest().authenticated().and()
-		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		.antMatchers(HttpMethod.GET,"/employee-management").hasAnyRole("HR","STAFF")
+				// .antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
+				// .antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")
+				.anyRequest().authenticated().and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-		
+
 //		http.authorizeRequests().and().formLogin().loginPage("/login").loginProcessingUrl("/authentication")
 //				.defaultSuccessUrl("/").failureUrl("/login?error=true").usernameParameter("username")
 //				.passwordParameter("password").and().logout().logoutUrl("/logout");
@@ -76,5 +75,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-	
 }

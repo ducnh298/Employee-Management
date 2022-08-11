@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,11 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.dto.WorkingHourDTO;
+import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.projection.UserSlim;
+import ducnh.springboot.projection.UserSlimClass;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.IUserService;
 import ducnh.springboot.service.IWorkingHourService;
+import ducnh.springboot.specifications.UserSpecification;
 
 @RestController
 @RequestMapping("/employee-management")
@@ -45,44 +49,47 @@ public class EmployeeAPI {
 	}
 
 	@GetMapping("/find-all")
-	@Secured({ "HR", "STAFF" })
 	public List<UserSlim> getEmployees() {
 		return userService.findAll(UserSlim.class);
 	}
 
 	@GetMapping("/find-all/{orderBy}")
-	@Secured({ "HR", "STAFF" })
-	public List<UserSlim> getEmployeesOrderByFullname(@PathVariable String orderBy) {
+	public List<UserDTO> getEmployeesOrderByFullname(@PathVariable String orderBy) {
 		if (orderBy.equalsIgnoreCase("ASC"))
-			return userService.findAllOrderByFullnameASC(UserSlim.class);
+			return userService.findAllOrderByFullnameASC(UserDTO.class);
 		else if (orderBy.equalsIgnoreCase("DESC"))
-			return userService.findAllOrderByFullnameDESC(UserSlim.class);
+			return userService.findAllOrderByFullnameDESC(UserDTO.class);
 		return null;
 	}
 
 	@GetMapping("/find-by-name")
-	@Secured({ "HR", "STAFF" })
-	public List<UserSlim> findEmployeesByName(@RequestBody String key) {
-		return userService.findByFullnameIgnoreCaseContaining(UserSlim.class, key);
+	public List<UserSlimClass> findEmployeesByName(@RequestBody String key) {
+		return userService.findByFullnameIgnoreCaseContaining(UserSlimClass.class, key);
 	}
 
 	@GetMapping("/find-by-user-name")
-	@Secured({ "HR", "STAFF" })
 	public UserSlim findEmployeeByUsername(@RequestBody String username) {
 		return userService.findByUsername(UserSlim.class, username);
 	}
 
 	@GetMapping("/find-all-having-role")
-	@Secured({ "HR", "STAFF" })
 	public List<UserDTO> findEmployeeHavingRole(@RequestBody Map<String, String> json) {
 		return userService.findAllEmployeeHavingRole(json.get("roleName"));
 	}
 
 	@GetMapping("/find-workinghour_by_userid/{id}")
-	@Secured({ "HR", "STAFF" })
 	public WorkingHourDTO findWorkingHourByUserId(@PathVariable("id") Long id) {
 		UserDTO user = userService.findById(UserDTO.class, id);
 		return user.getWorkingHour();
+	}
+
+	@GetMapping("/find-all-having-fullname-like-and-role")
+	public List<UserDTO> findEmployeeHavingFullnameLikeAndRole(@RequestBody Map<String, Object> json) {
+		Specification<UserEntity> spec = UserSpecification.hasFullNameLike(json.get("name").toString())
+				.and(UserSpecification.hasRole(json.get("roleName").toString())
+						.and(UserSpecification.hasAgeDiff((Boolean)json.get("greater"), Integer.parseInt(json.get("age").toString()))));
+
+		return userService.findAllHavingSpecifications(spec);
 	}
 
 	@PostMapping
@@ -128,4 +135,5 @@ public class EmployeeAPI {
 		workingHour.setUser(user);
 		return workingHourService.save(workingHour);
 	}
+
 }

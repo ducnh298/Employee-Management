@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +30,7 @@ public class CheckinEntity extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
+	@Fetch(FetchMode.SELECT)
 	private UserEntity user;
 
 }

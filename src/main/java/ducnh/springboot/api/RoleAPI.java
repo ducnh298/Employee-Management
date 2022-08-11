@@ -20,20 +20,20 @@ import ducnh.springboot.service.IRoleService;
 public class RoleAPI {
 	@Autowired
 	IRoleService roleService;
-	
+
 	@PostMapping
 	@Secured("HR")
 	public RoleDTO addRole(@RequestBody RoleDTO role) {
 		return roleService.save(role);
 	}
-	
+
 	@GetMapping("/{id}")
 	@Secured("HR")
 	public RoleDTO findById(@PathVariable Long id) {
-		System.out.println("role id: "+id);
+		System.out.println("role id: " + id);
 		return roleService.findById(id);
 	}
-	
+
 	@GetMapping("/count-em")
 	@Secured("HR")
 	public List<IRoleCount> CountEmByRole() {

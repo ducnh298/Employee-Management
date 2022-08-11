@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
+import ducnh.springboot.specifications.UserSpecification;
 import ducnh.springboot.utils.RandomUtils;
 
 @Service
@@ -178,14 +180,14 @@ public class UserService implements IUserService {
 	@Override
 	public <T> List<T> findAllOrderByFullnameDESC(Class<T> classtype) {
 
-//		if (classtype.equals(UserDTO.class)) {
-//			List<UserEntity> list = userRepository.findBy(UserEntity.class, Sort.by("fullname").descending());
-//			List<UserDTO> listDTO = new ArrayList<UserDTO>();
-//			for (UserEntity item : list)
-//				listDTO.add(modelMapper.map(item, UserDTO.class));
-//			return (List<T>) listDTO;
-//		} else
-			return userRepository.findBy(classtype, Sort.by("fullname").descending());
+		if (classtype.equals(UserDTO.class)) {
+			List<UserEntity> list = userRepository.findBy(UserEntity.class, Sort.by("fullname").descending());
+			List<UserDTO> listDTO = new ArrayList<UserDTO>();
+			for (UserEntity item : list)
+				listDTO.add(modelMapper.map(item, UserDTO.class));
+			return (List<T>) listDTO;
+		} else
+		return userRepository.findBy(classtype, Sort.by("fullname").descending());
 	}
 
 	@Override
@@ -196,5 +198,16 @@ public class UserService implements IUserService {
 			listDTO.add(modelMapper.map(item, UserDTO.class));
 		return listDTO;
 	}
+
+	@Override
+	public List<UserDTO> findAllHavingSpecifications(Specification<UserEntity> spec) {
+		
+		List<UserEntity> list = userRepository.findAll(spec);
+		List<UserDTO> listDTO = new ArrayList<UserDTO>();
+		for (UserEntity item : list)
+			listDTO.add(modelMapper.map(item, UserDTO.class));
+		return listDTO;
+	}
+
 
 }

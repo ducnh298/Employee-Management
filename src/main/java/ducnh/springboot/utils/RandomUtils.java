@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RandomUtils {
-	
+
 	public static int randomInt(int min, int max) {
 		return ThreadLocalRandom.current().nextInt(min, max + 1);
 	}

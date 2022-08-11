@@ -10,8 +10,7 @@ public class ModelMapperConfig {
 	@Bean
 	public ModelMapper moderMapper() {
 		ModelMapper modelMapper = new ModelMapper();
-		modelMapper.getConfiguration()
-		.setFieldMatchingEnabled(true);
+		modelMapper.getConfiguration().setFieldMatchingEnabled(true);
 		return modelMapper;
 	}
 }

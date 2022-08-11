@@ -22,18 +22,20 @@ public class DateUtils {
 
 	ResourceBundle workingTime = ResourceBundle.getBundle("workingtime");
 
-	public Timestamp addDay(Timestamp timestamp,int days) {
-		Calendar c = Calendar.getInstance(); 
-		c.setTime(timestamp); 
+	public Timestamp addDay(Timestamp timestamp, int days) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(timestamp);
 		c.add(Calendar.DATE, days);
 		return new Timestamp(c.getTimeInMillis());
 	}
 	
-	public Timestamp parseLDT(LocalDateTime time,String format) throws ParseException {
+	
+
+	public Timestamp parseLDT(LocalDateTime time, String format) throws ParseException {
 		SimpleDateFormat sdf2 = new SimpleDateFormat(format);
 		return new Timestamp(sdf2.parse(Timestamp.valueOf(time).toString()).getTime());
 	}
-	
+
 	public String formatDate(Timestamp time, String format) {
 		SimpleDateFormat sdf2 = new SimpleDateFormat(format);
 		return sdf2.format(time);
@@ -46,10 +48,9 @@ public class DateUtils {
 				&& date1.getDay() == date2.getDay());
 	}
 
+	public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
 
-public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
-		
-		String localDateTimeNow = LocalDate.now().toString() + " " + woDto.getStartMorningTime()+":00";
+		String localDateTimeNow = LocalDate.now().toString() + " " + woDto.getStartMorningTime() + ":00";
 		long workingDateTimeMiliseconds = new Long(0);
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
@@ -62,8 +63,8 @@ public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
 		return (int) (timeNow - workingDateTimeMiliseconds);
 	}
 
-	public int checkoutEarly(LocalDateTime time,WorkingHourDTO woDto) {
-		String localDateWorkingTime = LocalDate.now().toString() + " " + woDto.getEndAfternoonTime()+":00";
+	public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto) {
+		String localDateWorkingTime = LocalDate.now().toString() + " " + woDto.getEndAfternoonTime() + ":00";
 		long workingDateTimeMiliseconds = new Long(0);
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;

@@ -27,12 +27,12 @@ public class WorkingHourService implements IWorkingHourService {
 	public WorkingHourDTO save(WorkingHourDTO workingHour) {
 		WorkingHourEntity entity = new WorkingHourEntity();
 
-		if (workingHour.getUser()!=null) {
+		if (workingHour.getUser() != null) {
 			entity = mapper.map(workingHour, WorkingHourEntity.class);
-			UserEntity user = userRepository.findById(workingHour.getUser().getId()).orElse(null);	
+			UserEntity user = userRepository.findById(workingHour.getUser().getId()).orElse(null);
 			entity.setUser(user);
 			entity.setId(user.getWorkinghour().getId());
-			
+
 			workingHour = mapper.map(workingHourRepository.save(entity), WorkingHourDTO.class);
 			return workingHour;
 		}
