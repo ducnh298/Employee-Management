@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +22,6 @@ import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.dto.WorkingHourDTO;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.projection.UserSlim;
-import ducnh.springboot.projection.UserSlimClass;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.IUserService;
@@ -48,12 +50,22 @@ public class EmployeeAPI {
 		return "welcome admin";
 	}
 
+	@GetMapping("/find-by-id/{id}")
+	@Cacheable("user")
+	public UserSlim getEmployee(@PathVariable Long id) {
+		return userService.findById(UserSlim.class, id);
+	}
+	
 	@GetMapping("/find-all")
+	@Cacheable(key="#root.methodName",value = "user",unless="#result == null")
 	public List<UserSlim> getEmployees() {
 		return userService.findAll(UserSlim.class);
 	}
 
 	@GetMapping("/find-all/{orderBy}")
+	@Cacheable("user")
+	//@Cacheable(key="{#root.methodName,#orderBy}",value = "User",unless="#result == null")
+
 	public List<UserDTO> getEmployeesOrderByFullname(@PathVariable String orderBy) {
 		if (orderBy.equalsIgnoreCase("ASC"))
 			return userService.findAllOrderByFullnameASC(UserDTO.class);
@@ -63,37 +75,45 @@ public class EmployeeAPI {
 	}
 
 	@GetMapping("/find-by-name")
-	public List<UserSlimClass> findEmployeesByName(@RequestBody String key) {
-		return userService.findByFullnameIgnoreCaseContaining(UserSlimClass.class, key);
+	@Cacheable(key = "{#root.methodName,#key}", value = "user", condition = "#key.length <5",unless="#result == null")
+//	@CachePut(value = "user")
+	public List<UserSlim> findEmployeesByName(@RequestBody String key) {
+		return userService.findByFullnameIgnoreCaseContaining(UserSlim.class, key);
 	}
 
 	@GetMapping("/find-by-user-name")
+	@Cacheable(key="{#root.methodName,#username}",value = "user",condition = "#username.length >5",unless="#result == null")
+//	@CacheEvict("user")
 	public UserSlim findEmployeeByUsername(@RequestBody String username) {
 		return userService.findByUsername(UserSlim.class, username);
 	}
 
 	@GetMapping("/find-all-having-role")
+	@Cacheable(key="{#root.methodName,#json}",value = "user",unless="#result == null")
 	public List<UserDTO> findEmployeeHavingRole(@RequestBody Map<String, String> json) {
 		return userService.findAllEmployeeHavingRole(json.get("roleName"));
 	}
 
 	@GetMapping("/find-workinghour_by_userid/{id}")
+	@Cacheable(key="{#root.methodName,#id}",value = "user",unless="#result == null")
 	public WorkingHourDTO findWorkingHourByUserId(@PathVariable("id") Long id) {
 		UserDTO user = userService.findById(UserDTO.class, id);
 		return user.getWorkingHour();
 	}
 
 	@GetMapping("/find-all-having-fullname-like-and-role")
+	@Cacheable(key="{#root.methodName,#json}",value = "user")
 	public List<UserDTO> findEmployeeHavingFullnameLikeAndRole(@RequestBody Map<String, Object> json) {
 		Specification<UserEntity> spec = UserSpecification.hasFullNameLike(json.get("name").toString())
-				.and(UserSpecification.hasRole(json.get("roleName").toString())
-						.and(UserSpecification.hasAgeDiff((Boolean)json.get("greater"), Integer.parseInt(json.get("age").toString()))));
+				.and(UserSpecification.hasRole(json.get("roleName").toString()).and(UserSpecification
+						.hasAgeDiff((Boolean) json.get("greater"), Integer.parseInt(json.get("age").toString()))));
 
 		return userService.findAllHavingSpecifications(spec);
 	}
 
 	@PostMapping
 	@Secured("HR")
+	@CachePut(value = "user")
 	public UserDTO createUser(@RequestBody UserDTO user) {
 		user = userService.save(user);
 		if (user != null) {
@@ -115,6 +135,7 @@ public class EmployeeAPI {
 
 	@PutMapping("/{id}")
 	@Secured("HR")
+	@CachePut(value = "user")
 	public UserDTO updateEmployee(@RequestBody UserDTO user, @PathVariable Long id) {
 		user.setId(id);
 		return userService.save(user);
@@ -122,12 +143,14 @@ public class EmployeeAPI {
 
 	@DeleteMapping
 	@Secured("HR")
+	@CacheEvict("user")
 	public String deleteEmployees(@RequestBody Long[] ids) {
 		userService.delete(ids);
 		return "deleted " + ids.length;
 	}
 
 	@PostMapping("/{id}/set-working-hour")
+	@CachePut(value = "user")
 	@Secured("HR")
 	public WorkingHourDTO setWorkingHour(@PathVariable("id") Long id, @RequestBody WorkingHourDTO workingHour) {
 		UserDTO user = new UserDTO();

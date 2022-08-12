@@ -22,7 +22,6 @@ import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
-import ducnh.springboot.specifications.UserSpecification;
 import ducnh.springboot.utils.RandomUtils;
 
 @Service
@@ -124,10 +123,13 @@ public class UserService implements IUserService {
 
 	@Override
 	public <T> T findById(Class<T> classtype, Long id) {
-		UserEntity entity = userRepository.findById(UserEntity.class, id);
-		UserDTO user = modelMapper.map(entity, UserDTO.class);
+		if (classtype.equals(UserDTO.class)) {
+			UserEntity entity = userRepository.findById(UserEntity.class, id);
+			UserDTO user = modelMapper.map(entity, UserDTO.class);
 
-		return (T) user;
+			return (T) user;
+		}
+		return userRepository.findById(classtype, id);
 	}
 
 	@Override
@@ -187,7 +189,7 @@ public class UserService implements IUserService {
 				listDTO.add(modelMapper.map(item, UserDTO.class));
 			return (List<T>) listDTO;
 		} else
-		return userRepository.findBy(classtype, Sort.by("fullname").descending());
+			return userRepository.findBy(classtype, Sort.by("fullname").descending());
 	}
 
 	@Override
@@ -201,13 +203,12 @@ public class UserService implements IUserService {
 
 	@Override
 	public List<UserDTO> findAllHavingSpecifications(Specification<UserEntity> spec) {
-		
+
 		List<UserEntity> list = userRepository.findAll(spec);
 		List<UserDTO> listDTO = new ArrayList<UserDTO>();
 		for (UserEntity item : list)
 			listDTO.add(modelMapper.map(item, UserDTO.class));
 		return listDTO;
 	}
-
 
 }

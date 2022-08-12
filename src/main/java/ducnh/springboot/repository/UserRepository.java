@@ -3,7 +3,6 @@ package ducnh.springboot.repository;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +12,9 @@ import org.springframework.stereotype.Repository;
 import ducnh.springboot.model.entity.UserEntity;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long>,JpaSpecificationExecutor<UserEntity> {
+public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
+
+	public static final String HASH_KEY = "User";
 
 	<T> T findByCheckinCode(Class<T> classtype, String checkinCode);
 
