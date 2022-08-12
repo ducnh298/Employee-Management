@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.IUserService;
@@ -49,7 +50,7 @@ public class Scheduler {
 		for (CheckinDTO checkin : checkinToday) {
 			listEmCheckinToday.add(checkin.getUser());
 		}
-		List<UserDTO> listE = userService.findAll(UserDTO.class);
+		List<UserDTO> listE = userService.findAllHavingSpec(null,null).getContent();
 
 		for (UserDTO em : listE) {
 			if (!listEmCheckinToday.contains(em)) {
@@ -72,7 +73,7 @@ public class Scheduler {
 			e.printStackTrace();
 		}
 		Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
-		List<UserDTO> listE = userService.findAll(UserDTO.class);
+		List<UserDTO> listE = (List<UserDTO>) userService.findAllHavingSpec(null,null).getContent();
 
 		for (UserDTO em : listE) {
 			List<CheckinDTO> checkinToday = checkinService.getCheckinsBetweenDatesById(now, nowPlus1Day, em.getId());
@@ -89,7 +90,7 @@ public class Scheduler {
 	@Scheduled(cron = "00 15 20 ? * SAT")
 	public void weeklyCheckins() {
 
-		List<UserDTO> listE = userService.findAll(UserDTO.class);
+		List<UserDTO> listE = (List<UserDTO>) userService.findAllHavingSpec(null,null).getContent();
 		LocalDateTime saturday1 = LocalDateTime.now();
 
 		for (UserDTO em : listE) {

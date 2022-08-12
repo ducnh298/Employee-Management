@@ -36,9 +36,6 @@ public class UserDTO extends BaseDTO {
 	private String userRoles;
 
 	@JsonIgnore
-	private List<CheckinDTO> checkins = new ArrayList<CheckinDTO>();
-
-	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
 
 	@JsonIgnore
