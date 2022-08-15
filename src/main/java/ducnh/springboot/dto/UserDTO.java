@@ -33,22 +33,10 @@ public class UserDTO extends BaseDTO {
 
 	private String email;
 
-	@Getter(AccessLevel.NONE)
-	private String userRoles;
-
-	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
 
 	@JsonIgnore
 	private WorkingHourDTO workingHour;
-
-	public String getUserRoles() {
-		StringBuilder str = new StringBuilder("[ ");
-		for(RoleDTO role: getRoles())
-			str.append(role.getName()+" ");
-		str.append("]");
-		return str.toString();
-	}
 
 	public static UserDTO convert(UserEntity entity){
 		UserDTO dto = new UserDTO();

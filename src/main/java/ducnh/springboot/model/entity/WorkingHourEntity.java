@@ -18,16 +18,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class WorkingHourEntity extends BaseEntity {
-	@Column
-	private LocalTime startMorningTime;
-	@Column
-	private LocalTime endMorningTime;
-	@Column
-	private LocalTime startAfternoonTime;
-	@Column
-	private LocalTime endAfternoonTime;
+    @Column
+    private LocalTime startMorningTime = LocalTime.of(8, 30);
+    @Column
+    private LocalTime endMorningTime = LocalTime.of(12, 00);
+    @Column
+    private LocalTime startAfternoonTime = LocalTime.of(13, 00);
+    @Column
+    private LocalTime endAfternoonTime = LocalTime.of(17, 30);
 
-	@OneToOne(mappedBy = "workinghour")
-	@Fetch(FetchMode.SELECT)
-	private UserEntity user;
+    @OneToOne(mappedBy = "workinghour")
+    @Fetch(FetchMode.SELECT)
+    private UserEntity user;
 }

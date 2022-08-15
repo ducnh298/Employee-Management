@@ -11,13 +11,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class WorkingHourDTO extends BaseDTO {
 
-	private LocalTime startMorningTime;
+    private LocalTime startMorningTime;
 
-	private LocalTime endMorningTime;
+    private LocalTime endMorningTime;
 
-	private LocalTime startAfternoonTime;
+    private LocalTime startAfternoonTime;
 
-	private LocalTime endAfternoonTime;
+    private LocalTime endAfternoonTime;
 
-	private UserDTO user;
+    private UserDTO user;
+
+    public String toString() {
+        return "Morning start time: " + startMorningTime + "		Morning end time: " + endMorningTime
+                + "<br>Afternoon start time: " + startAfternoonTime + "		Afternoon end time: " + endAfternoonTime;
+    }
 }

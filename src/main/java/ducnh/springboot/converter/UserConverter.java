@@ -43,27 +43,4 @@ public class UserConverter {
         return old;
     }
 
-    public UserDTO toDTO(UserEntity entity) {
-        UserDTO dto = new UserDTO();
-        if (entity.getId() != null)
-            dto.setId(entity.getId());
-        if (entity.getFullname() != null)
-            dto.setFullname(entity.getFullname());
-        if (entity.getDateOfBirth() != null)
-            dto.setDateOfBirth(entity.getDateOfBirth());
-        if (entity.getEmail() != null)
-            dto.setEmail(entity.getEmail());
-        if (entity.getCheckinCode() != null)
-            dto.setCheckinCode(entity.getCheckinCode());
-        if (entity.getRoles() != null) {
-            Set<RoleDTO> roles = new HashSet<RoleDTO>();
-            if (entity.getRoles() != null) {
-                for (RoleEntity role : entity.getRoles()) {
-                    roles.add(mapper.map(role, RoleDTO.class));
-                }
-                dto.setRoles(roles);
-            }
-        }
-        return dto;
-    }
 }

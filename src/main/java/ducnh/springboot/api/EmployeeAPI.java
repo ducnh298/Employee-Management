@@ -128,6 +128,8 @@ public class EmployeeAPI {
             content.append("<br><br>Your username: ");
             content.append(user.getUsername());
             content.append("<br>Your default password: 12345</h2>");
+            content.append("<br>Your working time: </h2>");
+            content.append(user.getWorkingHour().toString());
             System.out.println(
                     mailService.sendMail(user.getEmail(), " NCC's Employee Account Created ", content.toString()));
         }

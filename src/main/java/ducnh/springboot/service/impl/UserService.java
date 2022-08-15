@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.Converter;
 import org.modelmapper.Converters;
 import org.modelmapper.ModelMapper;
@@ -68,7 +69,7 @@ public class UserService implements IUserService {
 
 	@Transactional(rollbackOn = Exception.class)
 	@Override
-	public UserDTO save(UserDTO user) {
+	public UserDTO save(@NotNull UserDTO user) {
 		UserEntity userEntity = new UserEntity();
 
 		if (user.getRoles() != null) {
@@ -91,10 +92,6 @@ public class UserService implements IUserService {
 			userEntity.setCheckinCode(code);
 
 			WorkingHourEntity workingHourEntity = new WorkingHourEntity();
-			workingHourEntity.setStartMorningTime(LocalTime.of(8, 30));
-			workingHourEntity.setEndMorningTime(LocalTime.of(12, 00));
-			workingHourEntity.setStartAfternoonTime(LocalTime.of(13, 00));
-			workingHourEntity.setEndAfternoonTime(LocalTime.of(17, 30));
 			workingHourEntity.setUser(userEntity);
 
 			workingHourEntity = workingHourRepository.save(workingHourEntity);
@@ -115,20 +112,13 @@ public class UserService implements IUserService {
 
 	@Override
 	public Page<UserDTO> findAllHavingSpec(Specification<UserEntity> spec,Pageable pageable) {
-//		if (classtype.equals(UserDTO.class)) {
 			Page<UserEntity> entity = userRepository.findAll(spec,pageable);
-//			List<UserDTO> listDTO = new ArrayList<UserDTO>();
-//			for (UserEntity item : list)
-//				listDTO.add(modelMapper.map(item, UserDTO.class));
-//			return new PageImpl<UserDTO>(listDTO);
 			return (Page<UserDTO>) entity.map(new Function<UserEntity, UserDTO>() {
 				@Override
 				public UserDTO apply(UserEntity userEntity) {
 					return modelMapper.map(userEntity,UserDTO.class);
 				}
 			});
-//		}
-//		return (Page<T>) userRepository.findAll(spec,pageable);
 	}
 
 

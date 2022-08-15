@@ -14,8 +14,6 @@ import ducnh.springboot.projection.IRoleCount;
 
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> {
-//	@Query(value="SELECT * FROM role WHERE id = :id",nativeQuery = true)
-//	Optional<RoleEntity> findById(@Param("id") Long id);
 
 	Slice<RoleEntity> findByNameContaining(String name,Pageable pageable);
 
