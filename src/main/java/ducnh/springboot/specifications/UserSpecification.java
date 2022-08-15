@@ -18,7 +18,7 @@ import ducnh.springboot.utils.DateFormat;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class UserSpecification<T> implements Specification<T> {
+public class UserSpecification {
 	/**
 	 * 
 	 */
@@ -31,7 +31,7 @@ public class UserSpecification<T> implements Specification<T> {
 		return new Date(c.getTimeInMillis());
 	}
 	
-	public static <T> Specification<T> hasId(Long id) {
+	public static Specification<UserEntity> hasId(Long id) {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.<String>get("id"), id);
 	}
 	
@@ -54,21 +54,14 @@ public class UserSpecification<T> implements Specification<T> {
 		};
 	}
 
-	public static Specification<UserEntity> hasAgeDiff(Boolean greater,int age){
-		return (root,query,criterialBuilder) ->{
+	public static Specification<UserEntity> hasAgeDiff(Boolean greater,int age) {
+		return (root, query, criterialBuilder) -> {
 			SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.y_Md);
 			Date now = new Date(System.currentTimeMillis());
-			if(greater)
-				return criterialBuilder.lessThan(root.get("dateOfBirth"),addDayDate(now, -(age*365)));
-			return criterialBuilder.greaterThanOrEqualTo(root.get("dateOfBirth"),addDayDate(now, -(age*365)));
+			if (greater)
+				return criterialBuilder.lessThan(root.get("dateOfBirth"), addDayDate(now, -(age * 365)));
+			return criterialBuilder.greaterThanOrEqualTo(root.get("dateOfBirth"), addDayDate(now, -(age * 365)));
 		};
-	}
-
-	@Override
-	public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query,
-			CriteriaBuilder criteriaBuilder) {
-		
-		return null;
 	}
 
 }

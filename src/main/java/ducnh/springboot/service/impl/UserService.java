@@ -3,16 +3,17 @@ package ducnh.springboot.service.impl;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.modelmapper.Converter;
+import org.modelmapper.Converters;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -115,11 +116,17 @@ public class UserService implements IUserService {
 	@Override
 	public Page<UserDTO> findAllHavingSpec(Specification<UserEntity> spec,Pageable pageable) {
 //		if (classtype.equals(UserDTO.class)) {
-			List<UserEntity> list = userRepository.findAll(spec,pageable).getContent();
-			List<UserDTO> listDTO = new ArrayList<UserDTO>();
-			for (UserEntity item : list)
-				listDTO.add(modelMapper.map(item, UserDTO.class));
-			return new PageImpl<UserDTO>(listDTO);
+			Page<UserEntity> entity = userRepository.findAll(spec,pageable);
+//			List<UserDTO> listDTO = new ArrayList<UserDTO>();
+//			for (UserEntity item : list)
+//				listDTO.add(modelMapper.map(item, UserDTO.class));
+//			return new PageImpl<UserDTO>(listDTO);
+			return (Page<UserDTO>) entity.map(new Function<UserEntity, UserDTO>() {
+				@Override
+				public UserDTO apply(UserEntity userEntity) {
+					return modelMapper.map(userEntity,UserDTO.class);
+				}
+			});
 //		}
 //		return (Page<T>) userRepository.findAll(spec,pageable);
 	}

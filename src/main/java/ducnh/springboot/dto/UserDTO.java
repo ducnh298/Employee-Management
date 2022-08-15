@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import ducnh.springboot.model.entity.UserEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,5 +48,10 @@ public class UserDTO extends BaseDTO {
 			str.append(role.getName()+" ");
 		str.append("]");
 		return str.toString();
+	}
+
+	public static UserDTO convert(UserEntity entity){
+		UserDTO dto = new UserDTO();
+		return dto;
 	}
 }
