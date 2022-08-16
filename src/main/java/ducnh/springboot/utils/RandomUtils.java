@@ -14,7 +14,7 @@ public class RandomUtils {
 	public String randCheckinCode() {
 		StringBuilder code = new StringBuilder();
 		for (int i = 0; i < 4; i++) {
-			code.append(String.valueOf(randomInt(0, 9)));
+			code.append(randomInt(0, 9));
 		}
 		return code.toString();
 	}

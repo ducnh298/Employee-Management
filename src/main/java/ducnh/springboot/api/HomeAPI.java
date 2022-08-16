@@ -1,9 +1,9 @@
 package ducnh.springboot.api;
 
-import java.util.Map;
-
-import javax.mail.MessagingException;
-
+import ducnh.springboot.dto.JWTResponse;
+import ducnh.springboot.security.jwt.JWTProvider;
+import ducnh.springboot.service.IMailService;
+import ducnh.springboot.service.impl.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ducnh.springboot.dto.JWTResponse;
-import ducnh.springboot.security.jwt.JWTProvider;
-import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.impl.UserDetailService;
+import javax.mail.MessagingException;
+import java.util.Map;
 
 @RestController
 public class HomeAPI {

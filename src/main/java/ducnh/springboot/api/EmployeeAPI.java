@@ -1,28 +1,22 @@
 package ducnh.springboot.api;
 
-import java.util.Map;
-
+import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.dto.WorkingHourDTO;
+import ducnh.springboot.repository.WorkingHourRepository;
+import ducnh.springboot.service.IMailService;
+import ducnh.springboot.service.IUserService;
+import ducnh.springboot.service.IWorkingHourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.dto.WorkingHourDTO;
-import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.projection.UserSlim;
-import ducnh.springboot.repository.WorkingHourRepository;
-import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.IUserService;
-import ducnh.springboot.service.IWorkingHourService;
-import ducnh.springboot.specifications.UserSpecification;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/employee-management")
@@ -106,7 +100,7 @@ public class EmployeeAPI {
     public UserDTO createUser(@RequestBody UserDTO user) {
         user = userService.save(user);
         if (user != null) {
-            StringBuilder content = new StringBuilder("");
+            StringBuilder content = new StringBuilder();
             content.append("<h1>Hi ");
             content.append(user.getFullname());
             content.append("!</h1><br><h2>Your NCC's account has been created by: ");

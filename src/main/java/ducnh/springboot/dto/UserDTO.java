@@ -1,20 +1,11 @@
 package ducnh.springboot.dto;
 
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
-import ducnh.springboot.model.entity.UserEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -33,13 +24,9 @@ public class UserDTO extends BaseDTO {
 
 	private String email;
 
-	private Set<RoleDTO> roles = new HashSet<RoleDTO>();
+	private Set<RoleDTO> roles = new HashSet<>();
 
 	@JsonIgnore
 	private WorkingHourDTO workingHour;
 
-	public static UserDTO convert(UserEntity entity){
-		UserDTO dto = new UserDTO();
-		return dto;
-	}
 }

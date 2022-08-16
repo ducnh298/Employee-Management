@@ -1,32 +1,20 @@
 package ducnh.springboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import javax.persistence.*;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity(name = "user")
 @JsonFormat(pattern = "yyyy-MM-dd")
@@ -57,12 +45,12 @@ public class UserEntity extends BaseEntity {
 
 	
 	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-	private List<CheckinEntity> checkins = new ArrayList<CheckinEntity>();
+	private List<CheckinEntity> checkins = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@BatchSize(size=5)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<RoleEntity> roles = new HashSet<RoleEntity>();
+	private Set<RoleEntity> roles = new HashSet<>();
 
 	
 	@OneToOne(cascade = CascadeType.ALL)

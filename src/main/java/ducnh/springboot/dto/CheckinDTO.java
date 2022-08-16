@@ -28,6 +28,7 @@ public class CheckinDTO extends BaseDTO {
 
 	private String checkinCode;
 
+	@JsonIgnore
 	private UserDTO user;
 	
 	public CheckinDTO() {
@@ -51,8 +52,7 @@ public class CheckinDTO extends BaseDTO {
 	@Override
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.dMyHms);
-		SimpleDateFormat sdf2 = new SimpleDateFormat(DateFormat.dMyHms);
-		StringBuilder str = new StringBuilder("");
+		StringBuilder str = new StringBuilder();
 		if (resultTime > 15)
 			str.append("<font color=red>");
 		str.append(dayOfWeek);

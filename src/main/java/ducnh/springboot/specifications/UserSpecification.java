@@ -1,21 +1,13 @@
 package ducnh.springboot.specifications;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.springframework.data.jpa.domain.Specification;
-
 import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.utils.DateFormat;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.criteria.Join;
+import java.sql.Date;
+import java.util.Calendar;
 
 @AllArgsConstructor
 public class UserSpecification {
@@ -56,7 +48,6 @@ public class UserSpecification {
 
 	public static Specification<UserEntity> hasAgeDiff(Boolean greater,int age) {
 		return (root, query, criterialBuilder) -> {
-			SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.y_Md);
 			Date now = new Date(System.currentTimeMillis());
 			if (greater)
 				return criterialBuilder.lessThan(root.get("dateOfBirth"), addDayDate(now, -(age * 365)));

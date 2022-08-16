@@ -1,10 +1,10 @@
 package ducnh.springboot.dto;
 
-import java.time.LocalTime;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalTime;
 
 @Getter
 @Setter

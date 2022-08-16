@@ -1,26 +1,5 @@
 package ducnh.springboot.service.impl;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
-import ducnh.springboot.specifications.UserSpecification;
-import org.jetbrains.annotations.NotNull;
-import org.modelmapper.Converter;
-import org.modelmapper.Converters;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.spi.MappingContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import ducnh.springboot.converter.UserConverter;
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.model.entity.UserEntity;
@@ -29,7 +8,22 @@ import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
+import ducnh.springboot.specifications.FilterSpecification;
+import ducnh.springboot.specifications.SearchCriteria;
+import ducnh.springboot.specifications.UserSpecification;
 import ducnh.springboot.utils.RandomUtils;
+import org.jetbrains.annotations.NotNull;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 //@PropertySource("classpath:workingtime.properties")
@@ -56,12 +50,11 @@ public class UserService implements IUserService {
     @Transactional(rollbackOn = Exception.class)
     @Override
     public UserDTO save(@NotNull UserDTO user) {
-        UserEntity userEntity = new UserEntity();
+        UserEntity userEntity;
 
         if (user.getRoles() != null) {
-            user.setRoles(user.getRoles().stream().map(role -> {
-                return roleService.findById(role.getId());
-            }).collect(Collectors.toSet()));
+            user.setRoles(user.getRoles().stream().map(role ->
+                roleService.findById(role.getId())).collect(Collectors.toSet()));
         }
 
         if (user.getId() != null) {
@@ -119,8 +112,11 @@ public class UserService implements IUserService {
 
     @Override
     public Page<UserDTO> findByFullName(String key, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecification.hasFullName(key);
-        return converter.toDTOPage(userRepository.findAll(spec, pageable));
+//        Specification<UserEntity> spec = UserSpecification.hasFullName(key);
+//        return converter.toDTOPage(userRepository.findAll(spec, pageable));
+
+        FilterSpecification<UserEntity> spec = new FilterSpecification<>(new SearchCriteria("fullname","LIKE",key));
+        return converter.toDTOPage(userRepository.findAll(spec,pageable));
     }
 
     @Override
@@ -137,9 +133,9 @@ public class UserService implements IUserService {
 
     @Override
     public Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(Map<String, String> json, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecification.hasFullName(json.get("name").toString())
-                .and(UserSpecification.hasRole(json.get("roleName").toString()).and(UserSpecification
-                        .hasAgeDiff(Boolean.parseBoolean(json.get("greater")), Integer.parseInt(json.get("age").toString()))));
+        Specification<UserEntity> spec = UserSpecification.hasFullName(json.get("name"))
+                .and(UserSpecification.hasRole(json.get("roleName")).and(UserSpecification
+                        .hasAgeDiff(Boolean.parseBoolean(json.get("greater")), Integer.parseInt(json.get("age")))));
 
         return converter.toDTOPage(userRepository.findAll(spec, pageable));
     }

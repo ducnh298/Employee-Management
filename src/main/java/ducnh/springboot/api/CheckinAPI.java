@@ -1,21 +1,5 @@
 package ducnh.springboot.api;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.model.entity.CheckinEntity;
@@ -24,6 +8,17 @@ import ducnh.springboot.projection.CheckinsCount;
 import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.service.IUserService;
 import ducnh.springboot.specifications.UserSpecification;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/checkin")
@@ -54,6 +49,12 @@ public class CheckinAPI {
 	@GetMapping(value = "/count-checkins")
 	public List<CheckinsCount> countCheckinByUser() {
 		return checkinService.countCheckinsByUser();
+	}
+
+	@GetMapping(value = "/find-by-status-dayofweek-resulttime")
+	@Secured("HR")
+	public Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(@RequestBody Map<String ,String> json, @RequestParam int page){
+		return checkinService.findByStatusAndDayOfWeekAndResultTime(json, PageRequest.of(page - 1, 5));
 	}
 
 	@PostMapping

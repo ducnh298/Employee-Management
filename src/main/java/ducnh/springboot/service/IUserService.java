@@ -1,14 +1,11 @@
 package ducnh.springboot.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Service;
-
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.model.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
@@ -33,9 +30,5 @@ public interface IUserService {
 	Page<UserDTO> findByRole(String rolename,Pageable pageable);
 
 	Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(Map<String,String> json, Pageable pageable);
-
-
-
-
 
 }

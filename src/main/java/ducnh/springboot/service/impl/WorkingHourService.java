@@ -25,7 +25,7 @@ public class WorkingHourService implements IWorkingHourService {
 
 	@Override
 	public WorkingHourDTO save(WorkingHourDTO workingHour) {
-		WorkingHourEntity entity = new WorkingHourEntity();
+		WorkingHourEntity entity;
 
 		if (workingHour.getUser() != null) {
 			entity = mapper.map(workingHour, WorkingHourEntity.class);

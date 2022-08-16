@@ -50,8 +50,8 @@ public class DateUtils {
 
 	public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
 
-		String localDateTimeNow = LocalDate.now().toString() + " " + woDto.getStartMorningTime() + ":00";
-		long workingDateTimeMiliseconds = new Long(0);
+		String localDateTimeNow = LocalDate.now() + " " + woDto.getStartMorningTime() + ":00";
+		long workingDateTimeMiliseconds = 0;
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
 		} catch (ParseException e) {
@@ -64,8 +64,8 @@ public class DateUtils {
 	}
 
 	public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto) {
-		String localDateWorkingTime = LocalDate.now().toString() + " " + woDto.getEndAfternoonTime() + ":00";
-		long workingDateTimeMiliseconds = new Long(0);
+		String localDateWorkingTime = LocalDate.now() + " " + woDto.getEndAfternoonTime() + ":00";
+		long workingDateTimeMiliseconds =0;
 		try {
 			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;
 		} catch (ParseException e) {

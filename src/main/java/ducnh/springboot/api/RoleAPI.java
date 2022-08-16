@@ -1,16 +1,15 @@
 package ducnh.springboot.api;
 
-import java.util.List;
-
+import ducnh.springboot.dto.RoleDTO;
+import ducnh.springboot.projection.IRoleCount;
+import ducnh.springboot.service.IRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import ducnh.springboot.dto.RoleDTO;
-import ducnh.springboot.projection.IRoleCount;
-import ducnh.springboot.service.IRoleService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/role")

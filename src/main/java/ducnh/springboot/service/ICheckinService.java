@@ -1,12 +1,14 @@
 package ducnh.springboot.service;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.projection.CheckinsCount;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public interface ICheckinService {
@@ -17,4 +19,6 @@ public interface ICheckinService {
 	List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate);
 
 	List<CheckinsCount> countCheckinsByUser();
+
+	Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String,String> json, Pageable pageable);
 }

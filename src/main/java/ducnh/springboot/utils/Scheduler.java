@@ -1,5 +1,14 @@
 package ducnh.springboot.utils;
 
+import ducnh.springboot.dto.CheckinDTO;
+import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.service.ICheckinService;
+import ducnh.springboot.service.IMailService;
+import ducnh.springboot.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,17 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import ducnh.springboot.dto.CheckinDTO;
-import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.service.ICheckinService;
-import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.IUserService;
 
 @Component
 public class Scheduler {
@@ -46,7 +44,7 @@ public class Scheduler {
 		}
 		Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
 		List<CheckinDTO> checkinToday = checkinService.getCheckinsBetweenDates(now, nowPlus1Day);
-		List<UserDTO> listEmCheckinToday = new ArrayList<UserDTO>();
+		List<UserDTO> listEmCheckinToday = new ArrayList<>();
 		for (CheckinDTO checkin : checkinToday) {
 			listEmCheckinToday.add(checkin.getUser());
 		}
@@ -73,7 +71,7 @@ public class Scheduler {
 			e.printStackTrace();
 		}
 		Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
-		List<UserDTO> listE = (List<UserDTO>) userService.findAllHavingSpec(null,null).getContent();
+		List<UserDTO> listE = userService.findAll(null).getContent();
 
 		for (UserDTO em : listE) {
 			List<CheckinDTO> checkinToday = checkinService.getCheckinsBetweenDatesById(now, nowPlus1Day, em.getId());
@@ -90,7 +88,7 @@ public class Scheduler {
 	@Scheduled(cron = "00 15 20 ? * SAT")
 	public void weeklyCheckins() {
 
-		List<UserDTO> listE = (List<UserDTO>) userService.findAllHavingSpec(null,null).getContent();
+		List<UserDTO> listE =  userService.findAll(null).getContent();
 		LocalDateTime saturday1 = LocalDateTime.now();
 
 		for (UserDTO em : listE) {

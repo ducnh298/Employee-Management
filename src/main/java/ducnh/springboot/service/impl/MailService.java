@@ -27,7 +27,6 @@ public class MailService implements IMailService {
 			helper = new MimeMessageHelper(message, true, "utf-8");
 			String htmlMsg = content + "<br><h2><b>Have a nice day!</b><br><font color=purple><b>Komu<b></font></h2>"
 					+ "<br><img src='https://ncc.asia/images/logo/logo.png'>";
-			;
 			message.setContent(htmlMsg, "text/html");
 
 			FileSystemResource file = new FileSystemResource(new File("test.txt"));

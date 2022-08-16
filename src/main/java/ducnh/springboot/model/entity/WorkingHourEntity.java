@@ -1,17 +1,15 @@
 package ducnh.springboot.model.entity;
 
-import java.time.LocalTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalTime;
 
 @Entity(name = "workinghour")
 @Getter
