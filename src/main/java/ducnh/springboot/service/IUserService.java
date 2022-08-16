@@ -4,10 +4,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.model.entity.UserEntity;
+
+import java.util.Map;
 
 @Service
 public interface IUserService {
@@ -15,6 +18,24 @@ public interface IUserService {
 
 	void delete(Long[] ids);
 
+	Page<UserDTO> findAll(Pageable pageable);
+
+	UserDTO findById(Long id);
+
+	UserDTO findByCheckinCode(String code,Pageable pageable);
+
 	Page<UserDTO> findAllHavingSpec(Specification<UserEntity> spec,Pageable pageable);
+
+	Page<UserDTO> findByFullName(String key,Pageable pageable);
+
+	Page<UserDTO> findByUserName(String key,Pageable pageable);
+
+	Page<UserDTO> findByRole(String rolename,Pageable pageable);
+
+	Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(Map<String,String> json, Pageable pageable);
+
+
+
+
 
 }

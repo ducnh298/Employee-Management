@@ -32,25 +32,25 @@ public class UserSpecification {
 	}
 	
 	public static Specification<UserEntity> hasId(Long id) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.<String>get("id"), id);
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id);
 	}
 	
 	public static Specification<UserEntity> hasCheckinCode(String code) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.<String>get("checkincode"),code);
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("checkincode"),code);
 	}
 
-	public static Specification<UserEntity> hasFullNameLike(String name) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.<String>get("fullname"), "%" + name + "%");
+	public static Specification<UserEntity> hasFullName(String name) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("fullname"), "%" + name + "%");
 	}
 	
 	public static Specification<UserEntity> hasUserName(String name) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.<String>get("username"),name);
+		return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("username"),"%"+name+"%");
 	}
 
 	public static Specification<UserEntity> hasRole(String roleName) {
 		return (root, query, criterialBuilder) -> {
 			Join<UserEntity, RoleEntity> userRole = root.join("roles");
-			return criterialBuilder.equal(userRole.get("name"), roleName);
+			return criterialBuilder.like(userRole.get("name"), roleName+"%%");
 		};
 	}
 

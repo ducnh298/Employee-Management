@@ -48,68 +48,56 @@ public class EmployeeAPI {
 
     @GetMapping("/find-by-id/{id}")
     @Cacheable("user")
-    public UserDTO getEmployee(@PathVariable Long id) {
-        Specification<UserEntity> spec = UserSpecification.hasId(id);
-        return userService.findAllHavingSpec(spec, null).getContent().get(0);
+    public UserDTO findById(@PathVariable Long id) {
+        return userService.findById(id);
     }
 
     @GetMapping("/find-all")
     @Cacheable(key = "#root.methodName", value = "user", unless = "#result == null")
-    public Page<UserDTO> getEmployees(@RequestParam int page) {
-        return (userService.findAllHavingSpec(null, PageRequest.of(page - 1, 5)));
+    public Page<UserDTO> findAll(@RequestParam int page) {
+        return userService.findAll(PageRequest.of(page - 1, 5));
     }
 
     @GetMapping("/find-all/{orderBy}")
     @Cacheable("user")
-    public Page<UserDTO> getEmployeesOrderByFullname(@PathVariable String orderBy, @RequestParam int page) {
+    public Page<UserDTO> findAllOrderByFullname(@PathVariable String orderBy, @RequestParam int page) {
         if (orderBy.equalsIgnoreCase("ASC"))
-            return (userService.findAllHavingSpec(null, PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.DESC, "fullname"))));
+            return userService.findAll( PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.ASC, "fullname")));
 
         else if (orderBy.equalsIgnoreCase("DESC"))
-            return (userService.findAllHavingSpec(null, PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.DESC, "fullname"))));
+            return userService.findAll(PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.DESC, "fullname")));
 
         return null;
     }
 
-    @GetMapping("/find-by-name")
-    @Cacheable(key = "{#root.methodName,#key}", value = "user", condition = "#key.length <5", unless = "#result == null")
-    public Page<UserDTO> findEmployeesByName(@RequestBody String key, @RequestParam int page) {
-        Specification<UserEntity> spec = UserSpecification.hasFullNameLike("a");
-
-        return userService.findAllHavingSpec(spec, PageRequest.of(page - 1, 5));
+    @GetMapping("/find-by-fullname")
+    @Cacheable(key = "{#root.methodName,#key}", value = "user", condition = "#key.length >=1", unless = "#result == null")
+    public Page<UserDTO> findEmployeesByFullName(@RequestBody String key, @RequestParam int page) {
+        return userService.findByFullName(key, PageRequest.of(page - 1, 5));
     }
 
-    @GetMapping("/find-by-user-name")
-    @Cacheable(key = "{#root.methodName,#username}", value = "user", condition = "#username.length >5", unless = "#result == null")
-    public UserSlim findEmployeeByUsername(@RequestBody String username) {
-        Specification<UserEntity> spec = UserSpecification.hasUserName(username);
-
-        return (UserSlim) userService.findAllHavingSpec(spec, null).getContent().get(0);
+    @GetMapping("/find-by-username")
+    @Cacheable(key = "{#root.methodName,#key}", value = "user", condition = "#key.length >5", unless = "#result == null")
+    public Page<UserDTO> findEmployeeByUsername(@RequestBody String key, @RequestParam int page) {
+        return userService.findByUserName(key,PageRequest.of(page - 1, 5));
     }
 
     @GetMapping("/find-all-having-role")
     @Cacheable(key = "{#root.methodName,#json}", value = "user", unless = "#result == null")
-    public Page<UserDTO> findEmployeeHavingRole(@RequestBody Map<String, String> json, @RequestParam int page) {
-        Specification<UserEntity> spec = UserSpecification.hasRole(json.get("roleName").toString());
-
-        return (userService.findAllHavingSpec(spec, PageRequest.of(page - 1, 5)));
+    public Page<UserDTO> findEmployeeHavingRole(@RequestBody String roleName, @RequestParam int page) {
+        return userService.findByRole(roleName, PageRequest.of(page - 1, 5));
     }
 
     @GetMapping("/find-workinghour_by_userid/{id}")
     @Cacheable(key = "{#root.methodName,#id}", value = "user", unless = "#result == null")
     public WorkingHourDTO findWorkingHourByUserId(@PathVariable("id") Long id) {
-        Specification<UserEntity> spec = UserSpecification.hasId(id);
-        return userService.findAllHavingSpec(spec, null).getContent().get(0).getWorkingHour();
+        return userService.findById(id).getWorkingHour();
     }
 
-    @GetMapping("/find-all-having-fullname-like-and-role")
+    @GetMapping("/find-by-fullname-role-agediff")
     @Cacheable(key = "{#root.methodName,#json}", value = "user")
-    public Page<UserDTO> findEmployeeHavingFullnameLikeAndRole(@RequestBody Map<String, Object> json, @RequestParam int page) {
-        Specification<UserEntity> spec = UserSpecification.hasFullNameLike(json.get("name").toString())
-                .and(UserSpecification.hasRole(json.get("roleName").toString()).and(UserSpecification
-                        .hasAgeDiff((Boolean) json.get("greater"), Integer.parseInt(json.get("age").toString()))));
-
-        return (userService.findAllHavingSpec(spec, PageRequest.of(page - 1, 5)));
+    public Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(@RequestBody Map<String, String> json, @RequestParam int page) {
+        return userService.findAllByFullnameAndRoleAndAgeDiff(json,PageRequest.of(page - 1, 5));
     }
 
     @PostMapping
