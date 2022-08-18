@@ -45,13 +45,13 @@ public class UserEntity extends BaseEntity {
 
 	
 	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
 	private List<CheckinEntity> checkins = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@BatchSize(size=5)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<RoleEntity> roles = new HashSet<>();
-
 	
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="workinghour_id",referencedColumnName = "id")

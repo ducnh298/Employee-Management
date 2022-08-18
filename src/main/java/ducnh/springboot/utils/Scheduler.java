@@ -48,7 +48,7 @@ public class Scheduler {
 		for (CheckinDTO checkin : checkinToday) {
 			listEmCheckinToday.add(checkin.getUser());
 		}
-		List<UserDTO> listE = userService.findAllHavingSpec(null,null).getContent();
+		List<UserDTO> listE = userService.findAll();
 
 		for (UserDTO em : listE) {
 			if (!listEmCheckinToday.contains(em)) {

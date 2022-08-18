@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -15,20 +16,14 @@ public interface IUserService {
 
 	void delete(Long[] ids);
 
+	List<UserDTO> findAll();
 	Page<UserDTO> findAll(Pageable pageable);
+
+	Page<UserDTO> findAll(Specification spec,Pageable pageable);
 
 	UserDTO findById(Long id);
 
-	UserDTO findByCheckinCode(String code,Pageable pageable);
+	<T> T findByCheckinCode(Class<T> clastype,String code);
 
-	Page<UserDTO> findAllHavingSpec(Specification<UserEntity> spec,Pageable pageable);
-
-	Page<UserDTO> findByFullName(String key,Pageable pageable);
-
-	Page<UserDTO> findByUserName(String key,Pageable pageable);
-
-	Page<UserDTO> findByRole(String rolename,Pageable pageable);
-
-	Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(Map<String,String> json, Pageable pageable);
 
 }

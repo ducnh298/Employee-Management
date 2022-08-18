@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class SearchCriteria {
-    public enum operation{
+    public enum Operation{
         EQUAL,LIKE,GREATER,LESS,GREATER_, LESS_, JOIN
     }
         private String key;
-        private String operation;
+        private Operation operation;
         private Object value;
 
 

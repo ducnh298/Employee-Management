@@ -28,7 +28,7 @@ public class RoleEntity extends BaseEntity {
 	private String detail;
 
 	@JsonIgnore
-	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	private List<UserEntity> users = new ArrayList<>();
 

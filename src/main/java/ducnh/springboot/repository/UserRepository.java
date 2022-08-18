@@ -18,6 +18,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
 
 	<T> T findByUsername(Class<T> classtype, String username);
 
+	<T> T findByFullname(Class<T> classtype, String username);
+
 	<T> T findById(Class<T> classtype, Long Id);
 
 	@Query(value = "SELECT * FROM user AS u WHERE u.id IN (SELECT user_id FROM user_role WHERE role_id IN (SELECT id FROM role WHERE name=:rolename)) ", nativeQuery = true)

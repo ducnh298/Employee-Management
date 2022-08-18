@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -40,10 +41,12 @@ public abstract class BaseEntity {
 
 	@Column
 	@LastModifiedDate
+	@JsonIgnore
 	private Timestamp modifiedDate;
 
 	@Column
 	@LastModifiedBy
+	@JsonIgnore
 	private String modifiedBy;
 
 }

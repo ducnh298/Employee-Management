@@ -119,9 +119,9 @@ public class CheckinService implements ICheckinService {
 
 	@Override
 	public  Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String,String> json, Pageable pageable) {
-		FilterSpecification<CheckinEntity> spec1 = new FilterSpecification<>(new SearchCriteria("status","LIKE","%"+json.get("status")+"%"));
-		FilterSpecification<CheckinEntity> spec2 = new FilterSpecification<>(new SearchCriteria("dayOfWeek","LIKE",json.get("dayOfWeek")+"%"));
-		FilterSpecification<CheckinEntity> spec3 = new FilterSpecification<>(new SearchCriteria("resultTime","GREATER_",json.get("resultTime")));
+		FilterSpecification<CheckinEntity> spec1 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.LIKE,"%"+json.get("status")+"%"));
+		FilterSpecification<CheckinEntity> spec2 = new FilterSpecification<>(new SearchCriteria("dayOfWeek", SearchCriteria.Operation.LIKE,json.get("dayOfWeek")+"%"));
+		FilterSpecification<CheckinEntity> spec3 = new FilterSpecification<>(new SearchCriteria("resultTime", SearchCriteria.Operation.GREATER_,json.get("resultTime")));
 
 		return checkinConverter.toDTOPage(checkinRepository.findAll(Specification.where(spec1).and(spec2).and(spec3),pageable));
 	}

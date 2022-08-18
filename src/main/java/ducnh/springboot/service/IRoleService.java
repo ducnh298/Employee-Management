@@ -22,4 +22,6 @@ public interface IRoleService {
 	Slice<RoleDTO> findByNameContaining(String name, Pageable pageable);
 
 	<T> Page<T> findByNameAndDetail(Map<String,String> json, Pageable pageable, Class<T> classtype);
+
+	int delete(Long[] ids);
 }

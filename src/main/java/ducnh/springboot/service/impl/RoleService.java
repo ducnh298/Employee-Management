@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,12 @@ public class RoleService implements IRoleService {
     @Override
     public <T> Page<T> findByNameAndDetail(Map<String, String> json, Pageable pageable, Class<T> classtype) {
         return null;
+    }
+
+    @Override
+    public int delete(Long[] ids) {
+        Arrays.stream(ids).forEach(id->roleRepository.deleteById(id));
+        return ids.length;
     }
 
 }

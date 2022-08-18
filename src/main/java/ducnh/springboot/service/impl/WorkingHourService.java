@@ -39,4 +39,8 @@ public class WorkingHourService implements IWorkingHourService {
 		return null;
 	}
 
+	public WorkingHourDTO findByUserId(Long id){
+		return mapper.map(userRepository.findById(UserEntity.class,id).getWorkinghour(),WorkingHourDTO.class);
+	}
+
 }

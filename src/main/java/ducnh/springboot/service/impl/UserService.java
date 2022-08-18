@@ -22,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -90,9 +91,19 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<UserDTO> findAll() {
+        return converter.toDTOList(userRepository.findAll());
+    }
+
+    @Override
     public Page<UserDTO> findAll(Pageable pageable) {
         return converter.toDTOPage(userRepository.findAll(pageable));
 
+    }
+
+    @Override
+    public Page<UserDTO> findAll(Specification spec, Pageable pageable) {
+        return converter.toDTOPage(userRepository.findAll(spec, pageable));
     }
 
     @Override
@@ -101,44 +112,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserDTO findByCheckinCode(String code, Pageable pageable) {
-        return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code), UserDTO.class);
+    public <T> T findByCheckinCode(Class<T> classtype,String code) {
+        return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code),classtype);
     }
-
-    @Override
-    public Page<UserDTO> findAllHavingSpec(Specification<UserEntity> spec, Pageable pageable) {
-        return converter.toDTOPage(userRepository.findAll(spec, pageable));
-    }
-
-    @Override
-    public Page<UserDTO> findByFullName(String key, Pageable pageable) {
-//        Specification<UserEntity> spec = UserSpecification.hasFullName(key);
-//        return converter.toDTOPage(userRepository.findAll(spec, pageable));
-
-        FilterSpecification<UserEntity> spec = new FilterSpecification<>(new SearchCriteria("fullname","LIKE",key));
-        return converter.toDTOPage(userRepository.findAll(spec,pageable));
-    }
-
-    @Override
-    public Page<UserDTO> findByUserName(String key, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecification.hasUserName(key);
-        return converter.toDTOPage(userRepository.findAll(spec, pageable));
-    }
-
-    @Override
-    public Page<UserDTO> findByRole(String rolename, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecification.hasRole(rolename);
-        return converter.toDTOPage(userRepository.findAll(spec, pageable));
-    }
-
-    @Override
-    public Page<UserDTO> findAllByFullnameAndRoleAndAgeDiff(Map<String, String> json, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecification.hasFullName(json.get("name"))
-                .and(UserSpecification.hasRole(json.get("roleName")).and(UserSpecification
-                        .hasAgeDiff(Boolean.parseBoolean(json.get("greater")), Integer.parseInt(json.get("age")))));
-
-        return converter.toDTOPage(userRepository.findAll(spec, pageable));
-    }
-
-
 }

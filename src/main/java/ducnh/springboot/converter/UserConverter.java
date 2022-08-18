@@ -1,12 +1,15 @@
 package ducnh.springboot.converter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import ducnh.springboot.dto.RoleDTO;
@@ -45,6 +48,12 @@ public class UserConverter {
         return old;
     }
 
+    public List<UserDTO> toDTOList(List<UserEntity> list){
+        List<UserDTO> result = new ArrayList<>();
+        for(UserEntity entity:list)
+            result.add(mapper.map(entity,UserDTO.class));
+        return result;
+    }
 
     public Page<UserDTO> toDTOPage(Page<UserEntity> entity) {
         return (Page<UserDTO>) entity.map(new Function<UserEntity, UserDTO>() {
