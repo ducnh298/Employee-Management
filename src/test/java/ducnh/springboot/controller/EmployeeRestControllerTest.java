@@ -40,7 +40,7 @@ class EmployeeRestControllerTest {
 
         given(userService.findById(99L)).willReturn(alex);
 
-        mvc.perform(get("/employee-management/find")
+        mvc.perform(get("/employee-management/find/99")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());

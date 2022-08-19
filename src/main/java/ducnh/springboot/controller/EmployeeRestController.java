@@ -40,9 +40,9 @@ public class EmployeeRestController {
         return "welcome admin";
     }
 
-    @GetMapping("/find")
+    @GetMapping("/find/{id}")
     @Cacheable("user")
-    public UserDTO findById(@RequestParam Long id) {
+    public UserDTO findById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
@@ -56,7 +56,7 @@ public class EmployeeRestController {
                                                  @RequestParam(value = "age", required = false) Optional<String> age) {
         Pageable pageable = PageRequest.of(page - 1, 5);
         Specification<UserEntity> spec = UserSpecification.all();
-        if (!orderBy.get().isEmpty()) {
+        if (orderBy.isPresent()) {
 
             String[] order = orderBy.get().split("-");
 
@@ -67,13 +67,13 @@ public class EmployeeRestController {
                     pageable = PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.DESC, order[0]));
             } else pageable = PageRequest.of(page - 1, 5, Sort.by(Sort.Direction.DESC, order[0]));
         }
-        if (!roleName.get().isEmpty())
+        if (roleName.isPresent())
             spec = spec.and(UserSpecification.hasRole(roleName.get()));
 
-        if (!userName.get().isEmpty())
+        if (userName.isPresent())
             spec = spec.and(UserSpecification.hasUserName(userName.get()));
 
-        if (!age.get().isEmpty()) {
+        if (age.isPresent()) {
             System.out.println("age diff: " + age);
             String diff = age.get().substring(0, 1);
             int ageE = 0;
@@ -108,8 +108,8 @@ public class EmployeeRestController {
             content.append("<br>Your default password: 12345</h2>");
             content.append("<br>Your working time: </h2>");
             content.append(user.getWorkingHour().toString());
-            System.out.println(
-                    mailService.sendMail(user.getEmail(), " NCC's Employee Account Created ", content.toString()));
+//            System.out.println(
+                    //mailService.sendMail(user.getEmail(), " NCC's Employee Account Created ", content.toString()));
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
@@ -130,6 +130,11 @@ public class EmployeeRestController {
         return new ResponseEntity<>("deleted " + ids.length, HttpStatus.OK);
     }
 
-
+    @DeleteMapping("/delete-roles")
+    @Secured("HR")
+    @CacheEvict("user")
+    public ResponseEntity<UserDTO> deleteRoles(@RequestParam Long userId,@RequestBody Long[] roleIds) {
+        return new ResponseEntity<>(userService.deleteRoles(userId,roleIds), HttpStatus.OK);
+    }
 
 }

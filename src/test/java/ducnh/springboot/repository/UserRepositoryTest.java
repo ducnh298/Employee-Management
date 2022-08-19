@@ -1,6 +1,7 @@
 package ducnh.springboot.repository;
 
 import ducnh.springboot.model.entity.UserEntity;
+import ducnh.springboot.utils.DateFormat;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,9 +39,16 @@ public class UserRepositoryTest {
 
     assertEquals(found.getFullname(),user.getFullname());
 }
+
     @After
     public void clean() {
        testEntityManager.remove(found);
         testEntityManager.flush();
+    }
+
+    @org.junit.jupiter.api.Test
+    void findAllForgetCheckin() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    assertEquals(userRepository.findAllForgetCheckin(new Timestamp(sdf.parse("2022-08-19").getTime()),new Timestamp(sdf.parse("2022-08-20").getTime())),11);
     }
 }
