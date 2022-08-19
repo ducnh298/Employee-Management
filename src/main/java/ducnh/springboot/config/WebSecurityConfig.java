@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests().antMatchers("/home", "/authenticate").permitAll()
-//		.antMatchers("/employee-management","/sendmail/*").hasRole("HR")
+		.antMatchers("/employee-management/find/*").permitAll()
 		.antMatchers(HttpMethod.GET,"/employee-management").hasAnyRole("HR","STAFF")
 				// .antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
 				// .antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")

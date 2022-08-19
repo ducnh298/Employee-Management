@@ -28,5 +28,4 @@ public interface CheckinRepository extends JpaRepository<CheckinEntity, Long>, J
 
 	@Query("SELECT new ducnh.springboot.projection.CheckinsCount(c.dayOfWeek,COUNT(c.id)) FROM checkin AS c GROUP BY c.dayOfWeek")
 	public List<CheckinsCount> countCheckinsByUser();
-
 }

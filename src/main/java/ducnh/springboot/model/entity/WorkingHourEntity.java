@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -25,7 +26,7 @@ public class WorkingHourEntity extends BaseEntity {
     @Column
     private LocalTime endAfternoonTime = LocalTime.of(17, 30);
 
-    @OneToOne(mappedBy = "workinghour")
+    @OneToOne(mappedBy = "workinghour",cascade = {CascadeType.ALL})
     @Fetch(FetchMode.SELECT)
     private UserEntity user;
 }

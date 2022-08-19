@@ -1,16 +1,16 @@
 package ducnh.springboot.service.impl;
 
 import ducnh.springboot.converter.UserConverter;
+import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.model.entity.WorkingHourEntity;
+import ducnh.springboot.repository.RoleRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
-import ducnh.springboot.specifications.FilterSpecification;
-import ducnh.springboot.specifications.SearchCriteria;
-import ducnh.springboot.specifications.UserSpecification;
 import ducnh.springboot.utils.RandomUtils;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
@@ -22,8 +22,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +49,9 @@ public class UserService implements IUserService {
 
     @Autowired
     RandomUtils randomUtils;
+
+    @Autowired
+    RoleRepository roleRepository;
 
     @Transactional(rollbackOn = Exception.class)
     @Override
@@ -115,4 +120,30 @@ public class UserService implements IUserService {
     public <T> T findByCheckinCode(Class<T> classtype,String code) {
         return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code),classtype);
     }
+
+    @Override
+    public UserDTO deleteRoles(Long userId, Long[] roleIds) {
+        UserEntity user = userRepository.findById(UserEntity.class,userId);
+        Set<RoleEntity> roles = user.getRoles();
+        List<RoleEntity> listRole= new ArrayList<>();
+        for(Long roleId:roleIds)
+            listRole.add(roleRepository.findById(roleId).orElse(null));
+        roles.removeAll(listRole);
+
+        user.setRoles(roles);
+        userRepository.save(user);
+
+        return modelMapper.map(user,UserDTO.class);
+    }
+
+    @Override
+    public List<UserDTO> findAllForgetCheckin(Timestamp today, Timestamp tomorrow) {
+        return converter.toDTOList(userRepository.findAllForgetCheckin(today,tomorrow));
+    }
+
+    @Override
+    public List<UserDTO> findAllForgetCheckout(Timestamp today, Timestamp tomorrow) {
+        return converter.toDTOList(userRepository.findAllForgetCheckout(today,tomorrow));
+    }
+
 }
