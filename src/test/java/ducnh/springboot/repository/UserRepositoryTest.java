@@ -1,7 +1,6 @@
 package ducnh.springboot.repository;
 
 import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.utils.DateFormat;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +14,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)

@@ -32,4 +32,6 @@ public interface IUserService {
 	List<UserDTO> findAllForgetCheckin(Timestamp today,Timestamp tomorrow);
 
 	List<UserDTO> findAllForgetCheckout(Timestamp today,Timestamp tomorrow);
+
+	void processOAuthPostLogin(String name,String email);
 }

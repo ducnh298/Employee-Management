@@ -3,6 +3,7 @@ package ducnh.springboot.service.impl;
 import ducnh.springboot.converter.UserConverter;
 import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.enumForEntity.Provider;
 import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.model.entity.WorkingHourEntity;
@@ -69,6 +70,7 @@ public class UserService implements IUserService {
         } else {
             userEntity = modelMapper.map(user, UserEntity.class);
             userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
+            userEntity.setProvider(Provider.LOCAL);
 
             String code = "";
             while (userRepository.findByCheckinCode(UserEntity.class, code) != null || code.equals("")) {
@@ -146,4 +148,34 @@ public class UserService implements IUserService {
         return converter.toDTOList(userRepository.findAllForgetCheckout(today,tomorrow));
     }
 
+    @Override
+    public void processOAuthPostLogin(String name,String email) {
+        UserEntity existUser = userRepository.findByEmail(UserEntity.class,email);
+
+        if (existUser == null) {
+            UserEntity newUser = new UserEntity();
+            newUser.setEmail(email);
+            newUser.setUsername(email);
+            newUser.setFullname(name);
+            newUser.setProvider(Provider.GOOGLE);
+
+            newUser.setPassword(new BCryptPasswordEncoder().encode("12345"));
+
+            String code = "";
+            while (userRepository.findByCheckinCode(UserEntity.class, code) != null || code.equals("")) {
+                code = randomUtils.randCheckinCode();
+            }
+            newUser.setCheckinCode(code);
+
+            WorkingHourEntity workingHourEntity = new WorkingHourEntity();
+            workingHourEntity.setUser(newUser);
+
+            workingHourEntity = workingHourRepository.save(workingHourEntity);
+
+            newUser.setWorkinghour(workingHourEntity);
+
+            userRepository.save(newUser);
+        }
+
+    }
 }
