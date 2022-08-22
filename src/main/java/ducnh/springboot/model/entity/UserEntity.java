@@ -2,6 +2,7 @@ package ducnh.springboot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import ducnh.springboot.enumForEntity.Provider;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,6 +44,8 @@ public class UserEntity extends BaseEntity {
 	@Column
 	private String email;
 
+	@Enumerated(EnumType.STRING)
+	private Provider provider;
 	
 	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	@JsonIgnore

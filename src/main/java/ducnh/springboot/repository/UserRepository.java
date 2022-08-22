@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
 
 	<T> T findByCheckinCode(Class<T> classtype, String checkinCode);
 
+	<T> T findByEmail(Class<T> classtype, String email);
+
 	<T> T findByUsername(Class<T> classtype, String username);
 
 	<T> T findByFullname(Class<T> classtype, String username);

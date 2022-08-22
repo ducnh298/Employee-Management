@@ -1,5 +1,6 @@
 package ducnh.springboot.utils;
 
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Component;
@@ -12,10 +13,7 @@ public class RandomUtils {
 	}
 
 	public String randCheckinCode() {
-		StringBuilder code = new StringBuilder();
-		for (int i = 0; i < 4; i++) {
-			code.append(randomInt(0, 9));
-		}
-		return code.toString();
+		int rand = randomInt(0,9999);
+		return String.format("%04d", rand);
 	}
 }
