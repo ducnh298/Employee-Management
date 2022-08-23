@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.sql.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -28,5 +29,8 @@ public class UserDTO extends BaseDTO {
 
 	@JsonIgnore
 	private WorkingHourDTO workingHour;
+
+	@JsonIgnore
+	private List<RequestOffDTO> requestsOff;
 
 }

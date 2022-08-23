@@ -53,13 +53,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests().antMatchers("/home", "/authenticate").permitAll()
                 .antMatchers("/oauth/**").permitAll()
                 .antMatchers("/employee-management/find/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/employee-management").hasAnyRole("HR", "STAFF")
+                .antMatchers(HttpMethod.GET, "/employee-management/").hasAnyRole("HR", "STAFF")
+                .antMatchers(HttpMethod.GET,"/working-hour/*").hasAnyRole("HR","STAFF","INTERN")
+                //.antMatchers("/request-off/*").hasAnyRole("HR","STAFF","INTERN")
 
                 // .antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
                 // .antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")
                 .anyRequest().authenticated().and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().oauth2Login()
-                .loginPage("/login")
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .oauth2Login().loginPage("/login")
                 .userInfoEndpoint()
                 .userService(oAuth2UserService).and()
                 .successHandler(new AuthenticationSuccessHandler() {

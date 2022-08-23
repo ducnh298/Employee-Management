@@ -24,7 +24,6 @@ import java.util.Set;
 @Setter
 
 public class UserEntity extends BaseEntity {
-	@JsonIgnore
 	@Column
 	private String username;
 
@@ -43,19 +42,23 @@ public class UserEntity extends BaseEntity {
 
 	@Column
 	private String email;
-
 	@Enumerated(EnumType.STRING)
+
 	private Provider provider;
-	
-	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<CheckinEntity> checkins = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@BatchSize(size=5)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<RoleEntity> roles = new HashSet<>();
-	
+
+	@OneToMany(mappedBy = "user", targetEntity = CheckinEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<CheckinEntity> checkins = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", targetEntity = RequestOffEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<RequestOffEntity> requestOffs = new ArrayList<>();
+
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="workinghour_id",referencedColumnName = "id")
 	@Fetch(FetchMode.SELECT)

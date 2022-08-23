@@ -56,12 +56,12 @@ public class UserService implements IUserService {
 
     @Transactional(rollbackOn = Exception.class)
     @Override
-    public UserDTO save(@NotNull UserDTO user) {
+    public UserDTO save(@NotNull UserEntity user) {
         UserEntity userEntity;
 
         if (user.getRoles() != null) {
             user.setRoles(user.getRoles().stream().map(role ->
-                roleService.findById(role.getId())).collect(Collectors.toSet()));
+                roleRepository.findById(role.getId()).orElse(null)).collect(Collectors.toSet()));
         }
 
         if (user.getId() != null) {
@@ -87,8 +87,7 @@ public class UserService implements IUserService {
         }
 
         userEntity = userRepository.save(userEntity);
-        user = modelMapper.map(userEntity, UserDTO.class);
-        return user;
+        return modelMapper.map(userEntity, UserDTO.class);
     }
 
     @Override
