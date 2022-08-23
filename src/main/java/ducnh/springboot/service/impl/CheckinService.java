@@ -1,13 +1,19 @@
 package ducnh.springboot.service.impl;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import ducnh.springboot.converter.CheckinConverter;
+import ducnh.springboot.enumForEntity.Status;
+import ducnh.springboot.model.entity.RequestOffEntity;
+import ducnh.springboot.repository.RequestOffRepository;
 import ducnh.springboot.specifications.FilterSpecification;
 import ducnh.springboot.specifications.SearchCriteria;
 import org.modelmapper.ModelMapper;
@@ -41,6 +47,9 @@ public class CheckinService implements ICheckinService {
 	CheckinRepository checkinRepository;
 
 	@Autowired
+	RequestOffRepository requestOffRepository;
+
+	@Autowired
 	DateUtils dateUtils;
 
 	@Autowired
@@ -51,23 +60,34 @@ public class CheckinService implements ICheckinService {
 		LocalDateTime dateTimeNow = LocalDateTime.now();
 
 		UserEntity user = userRepository.findByCheckinCode(UserEntity.class, checkinCode);
-		UserDTO userDTO =mapper.map(user, UserDTO.class);
+		UserDTO userDTO = mapper.map(user, UserDTO.class);
 		checkinDTO.setUser(userDTO);
 
 		Timestamp dateNowPlus1;
 		List<CheckinDTO> list = new ArrayList<>();
+
+		Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL,user));
+		Specification<RequestOffEntity> spec2 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED));
+		Specification<RequestOffEntity> spec3 = null;
+		Specification<RequestOffEntity> spec4 = null;
 	
 			try {
 				dateNowPlus1 = dateUtils.addDay(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md),1);
+				System.out.println("date now plus 1 "+dateNowPlus1);
 				list = getCheckinsBetweenDatesById(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md), dateNowPlus1, user.getId());
+				spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.GREATER_,new SimpleDateFormat(DateFormat.y_Md).parse(String.valueOf(Date.from(dateTimeNow.atZone(ZoneId.systemDefault()).toInstant())))));
+				System.out.println("timestamp: "+dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md));
+				spec3 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.LESS,dateNowPlus1));
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
+
+		List<RequestOffEntity> requestList = requestOffRepository.findAll(spec1.and(spec2).and(spec3).and(spec4));
+		RequestOffEntity request = null;
+		if(requestList.size()>0)
+			request = requestList.get(0);
 		if (list.size()>0) {
-			int resultTime ;
-				resultTime = dateUtils.checkoutEarly(dateTimeNow,userDTO.getWorkingHour());
+			int resultTime = dateUtils.checkoutEarly(dateTimeNow,userDTO.getWorkingHour(),request);
 			
 			checkinDTO.setResultTime(resultTime);
 			if (resultTime <= 0)
@@ -75,8 +95,7 @@ public class CheckinService implements ICheckinService {
 			else
 				checkinDTO.setStatus("checkout early");
 		} else {
-			int resultTime;
-				resultTime = dateUtils.checkinLate(dateTimeNow,userDTO.getWorkingHour());
+			int resultTime = dateUtils.checkinLate(dateTimeNow,userDTO.getWorkingHour(),request);
 			
 			
 			checkinDTO.setResultTime(resultTime);

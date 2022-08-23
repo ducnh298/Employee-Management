@@ -37,6 +37,7 @@ public abstract class BaseEntity {
 
 	@Column
 	@CreatedBy
+	@JsonIgnore
 	private String createdBy;
 
 	@Column

@@ -93,31 +93,31 @@ public class EmployeeRestController {
     @PostMapping
     @Secured("HR")
     @CachePut(value = "user")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
-        user = userService.save(user);
-        if (user != null) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserEntity user) {
+        UserDTO dto = userService.save(user);
+        if (dto != null) {
             StringBuilder content = new StringBuilder();
             content.append("<h1>Hi ");
-            content.append(user.getFullname());
+            content.append(dto.getFullname());
             content.append("!</h1><br><h2>Your NCC's account has been created by: ");
-            content.append(user.getCreatedBy());
+            content.append(dto.getCreatedBy());
             content.append(" --- at: ");
-            content.append(user.getCreatedDate());
-            content.append("<br><br>Your username: ");
-            content.append(user.getUsername());
+            content.append(dto.getCreatedDate());
+            content.append("<br><br>Your dtoname: ");
+            content.append(dto.getUsername());
             content.append("<br>Your default password: 12345</h2>");
             content.append("<br>Your working time: </h2>");
-            content.append(user.getWorkingHour().toString());
+            content.append(dto.getWorkingHour().toString());
 //            System.out.println(
-                    //mailService.sendMail(user.getEmail(), " NCC's Employee Account Created ", content.toString()));
+                    //mailService.sendMail(dto.getEmail(), " NCC's Employee Account Created ", content.toString()));
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @Secured("HR")
     @CachePut(value = "user")
-    public ResponseEntity<UserDTO> updateEmployee(@RequestBody UserDTO user, @PathVariable Long id) {
+    public ResponseEntity<UserDTO> updateEmployee(@RequestBody UserEntity user, @PathVariable Long id) {
         user.setId(id);
         return new ResponseEntity<>(userService.save(user), HttpStatus.OK);
     }

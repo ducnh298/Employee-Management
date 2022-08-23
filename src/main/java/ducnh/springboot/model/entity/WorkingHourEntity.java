@@ -26,7 +26,7 @@ public class WorkingHourEntity extends BaseEntity {
     @Column
     private LocalTime endAfternoonTime = LocalTime.of(17, 30);
 
-    @OneToOne(mappedBy = "workinghour",cascade = {CascadeType.ALL})
+    @OneToOne(mappedBy = "workinghour",cascade={CascadeType.PERSIST,CascadeType.REMOVE})
     @Fetch(FetchMode.SELECT)
     private UserEntity user;
 }

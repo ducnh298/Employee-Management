@@ -24,23 +24,21 @@ public class WorkingHourService implements IWorkingHourService {
 	UserRepository userRepository;
 
 	@Override
-	public WorkingHourDTO save(WorkingHourDTO workingHour) {
-		WorkingHourEntity entity;
+	public WorkingHourDTO save(WorkingHourEntity entity) {
 
-		if (workingHour.getUser() != null) {
-			entity = mapper.map(workingHour, WorkingHourEntity.class);
-			UserEntity user = userRepository.findById(workingHour.getUser().getId()).orElse(null);
+		if (entity.getUser() != null) {
+			UserEntity user = userRepository.findById(entity.getUser().getId()).get();
 			entity.setUser(user);
 			entity.setId(user.getWorkinghour().getId());
 
-			workingHour = mapper.map(workingHourRepository.save(entity), WorkingHourDTO.class);
-			return workingHour;
+			return mapper.map(workingHourRepository.save(entity), WorkingHourDTO.class);
 		}
+
 		return null;
 	}
 
 	public WorkingHourDTO findByUserId(Long id){
-		return mapper.map(userRepository.findById(UserEntity.class,id).getWorkinghour(),WorkingHourDTO.class);
+		return mapper.map(workingHourRepository.findByUserId(id), WorkingHourDTO.class);
 	}
 
 }

@@ -2,6 +2,8 @@ package ducnh.springboot.controller;
 
 import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.dto.WorkingHourDTO;
+import ducnh.springboot.model.entity.UserEntity;
+import ducnh.springboot.model.entity.WorkingHourEntity;
 import ducnh.springboot.service.IWorkingHourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
@@ -17,17 +19,17 @@ public class WorkingHourRestController {
     @Autowired
     IWorkingHourService workingHourService;
 
-    @GetMapping("/find-working-hour")
-    @Cacheable(key = "{#root.methodName,#id}", value = "user", unless = "#result == null")
-    public ResponseEntity<WorkingHourDTO> findWorkingHourByUserId(@RequestParam Long id) {
-        return new ResponseEntity<>(workingHourService.findByUserId(id), HttpStatus.OK);
+    @GetMapping("/find")
+    @Cacheable(key = "{#root.methodName,#userId}", value = "user", unless = "#result == null")
+    public ResponseEntity<WorkingHourDTO> findWorkingHourByUserId(@RequestParam Long userId) {
+        return new ResponseEntity<>(workingHourService.findByUserId(userId), HttpStatus.OK);
     }
 
     @PostMapping("/set")
     @CachePut(value = "user")
     @Secured("HR")
-    public ResponseEntity<WorkingHourDTO> setWorkingHour(@RequestParam("id") Long id, @RequestBody WorkingHourDTO workingHour) {
-        UserDTO user = new UserDTO();
+    public ResponseEntity<WorkingHourDTO> setWorkingHour(@RequestParam("id") Long id, @RequestBody WorkingHourEntity workingHour) {
+        UserEntity user = new UserEntity();
         user.setId(id);
         workingHour.setUser(user);
         return new ResponseEntity<>(workingHourService.save(workingHour), HttpStatus.OK);

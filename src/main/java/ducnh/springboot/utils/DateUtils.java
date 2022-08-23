@@ -1,5 +1,10 @@
 package ducnh.springboot.utils;
 
+import ducnh.springboot.dto.WorkingHourDTO;
+import ducnh.springboot.enumForEntity.TimeOff;
+import ducnh.springboot.model.entity.RequestOffEntity;
+import org.springframework.stereotype.Component;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -9,100 +14,70 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
-import java.util.ResourceBundle;
-
-import org.springframework.stereotype.Component;
-
-import ducnh.springboot.dto.WorkingHourDTO;
 
 @Component
 public class DateUtils {
 
-	SimpleDateFormat sdf1 = new SimpleDateFormat(DateFormat.y_MdHms);
+    public Timestamp addDay(Timestamp timestamp, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(timestamp);
+        c.add(Calendar.DATE, days);
+        return new Timestamp(c.getTimeInMillis());
+    }
 
-	ResourceBundle workingTime = ResourceBundle.getBundle("workingtime");
+    public Timestamp parseLDT(LocalDateTime time, String format) throws ParseException {
+        return new Timestamp(new SimpleDateFormat(format).parse(Timestamp.valueOf(time).toString()).getTime());
+    }
 
-	public Timestamp addDay(Timestamp timestamp, int days) {
-		Calendar c = Calendar.getInstance();
-		c.setTime(timestamp);
-		c.add(Calendar.DATE, days);
-		return new Timestamp(c.getTimeInMillis());
-	}
-	
-	
+    public String formatDate(Timestamp time, String format) {
+        return new SimpleDateFormat(format).format(time);
+    }
 
-	public Timestamp parseLDT(LocalDateTime time, String format) throws ParseException {
-		SimpleDateFormat sdf2 = new SimpleDateFormat(format);
-		return new Timestamp(sdf2.parse(Timestamp.valueOf(time).toString()).getTime());
-	}
+    public boolean isSameDay(Date date1, Date date2) {
+        if (date1 == null || date2 == null)
+            return false;
+        return (date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth()
+                && date1.getDay() == date2.getDay());
+    }
 
-	public String formatDate(Timestamp time, String format) {
-		SimpleDateFormat sdf2 = new SimpleDateFormat(format);
-		return sdf2.format(time);
-	}
+    public int checkinLate(LocalDateTime time, WorkingHourDTO woDto, RequestOffEntity request) {
+        String localDateTimeNow = LocalDate.now() + " " + woDto.getStartMorningTime() + ":00";
+        if(request!=null){
+            if(request.getTimeOff().equals(TimeOff.FULLDAY))
+                return 0;
+            if(request.getTimeOff().equals(TimeOff.MORNING))
+                localDateTimeNow = LocalDate.now() + " 13:00:00";
+        }
 
-	public boolean isSameDay(Date date1, Date date2) {
-		if (date1 == null || date2 == null)
-			return false;
-		return (date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth()
-				&& date1.getDay() == date2.getDay());
-	}
+        long workingDateTimeMiliseconds = 0;
+        try {
+            workingDateTimeMiliseconds = new SimpleDateFormat(DateFormat.y_MdHms).parse(localDateTimeNow).getTime() / 1000 / 60;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
+        long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
+        return (int) (timeNow - workingDateTimeMiliseconds);
+    }
 
-	public int checkinLate(LocalDateTime time, WorkingHourDTO woDto) {
+    public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto,RequestOffEntity request) {
+        String localDateTimeNow = LocalDate.now() + " " + woDto.getEndAfternoonTime() + ":00";
 
-		String localDateTimeNow = LocalDate.now() + " " + woDto.getStartMorningTime() + ":00";
-		long workingDateTimeMiliseconds = 0;
-		try {
-			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
-		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
-		return (int) (timeNow - workingDateTimeMiliseconds);
-	}
+        if(request!=null){
+            if(request.getTimeOff().equals(TimeOff.FULLDAY))
+                return 0;
+            if(request.getTimeOff().equals(TimeOff.AFTERNOON))
+                localDateTimeNow = LocalDate.now() + " 12:00:00";
+        }
 
-	public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto) {
-		String localDateWorkingTime = LocalDate.now() + " " + woDto.getEndAfternoonTime() + ":00";
-		long workingDateTimeMiliseconds =0;
-		try {
-			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
-		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
-		return (int) (workingDateTimeMiliseconds - timeNow);
-	}
-//	public int checkinLate(LocalDateTime time) {
-//		
-//		String localDateTimeNow = LocalDate.now().toString() + " " + workingTime.getString("startTime");
-//		long workingDateTimeMiliseconds = new Long(0);
-//		try {
-//			workingDateTimeMiliseconds = sdf1.parse(localDateTimeNow).getTime() / 1000 / 60;
-//		} catch (ParseException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
-//		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
-//		return (int) (timeNow - workingDateTimeMiliseconds);
-//	}
-//
-//	public int checkoutEarly(LocalDateTime time) {
-//		String localDateWorkingTime = LocalDate.now().toString() + " " + workingTime.getString("endTime");
-//		long workingDateTimeMiliseconds = new Long(0);
-//		try {
-//			workingDateTimeMiliseconds = sdf1.parse(localDateWorkingTime).getTime() / 1000 / 60;
-//		} catch (ParseException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
-//		long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
-//		return (int) (workingDateTimeMiliseconds - timeNow);
-//	}
-//	
+        long workingDateTimeMiliseconds = 0;
+        try {
+            workingDateTimeMiliseconds = new SimpleDateFormat(DateFormat.y_MdHms).parse(localDateTimeNow).getTime() / 1000 / 60;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        ZonedDateTime zdt = ZonedDateTime.of(time, ZoneId.systemDefault());
+        long timeNow = zdt.toInstant().toEpochMilli() / 1000 / 60;
+        return (int) (workingDateTimeMiliseconds - timeNow);
+    }
 }

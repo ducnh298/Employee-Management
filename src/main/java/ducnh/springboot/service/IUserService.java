@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Service
 public interface IUserService {
-	UserDTO save(UserDTO user);
+	UserDTO save(UserEntity user);
 
 	void delete(Long[] ids);
 

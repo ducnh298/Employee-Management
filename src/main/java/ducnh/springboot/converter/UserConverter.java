@@ -23,23 +23,23 @@ public class UserConverter {
     @Autowired
     ModelMapper mapper;
 
-    public UserEntity toEntity(UserDTO dto, UserEntity old) {
-        if (dto.getId() != null)
-            old.setId(dto.getId());
-        if (dto.getFullname() != null)
-            old.setFullname(dto.getFullname());
-        if (dto.getDateOfBirth() != null)
-            old.setDateOfBirth(dto.getDateOfBirth());
-        if (dto.getEmail() != null)
-            old.setEmail(dto.getEmail());
-        if (dto.getCheckinCode() != null)
-            old.setCheckinCode(dto.getCheckinCode());
-        if (dto.getRoles() != null) {
+    public UserEntity toEntity(UserEntity entity, UserEntity old) {
+        if (entity.getId() != null)
+            old.setId(entity.getId());
+        if (entity.getFullname() != null)
+            old.setFullname(entity.getFullname());
+        if (entity.getDateOfBirth() != null)
+            old.setDateOfBirth(entity.getDateOfBirth());
+        if (entity.getEmail() != null)
+            old.setEmail(entity.getEmail());
+        if (entity.getCheckinCode() != null)
+            old.setCheckinCode(entity.getCheckinCode());
+        if (entity.getRoles() != null) {
             Set<RoleEntity> roles = new HashSet<RoleEntity>();
             if (old.getRoles() != null)
                 roles = old.getRoles();
 
-            for (RoleDTO role : dto.getRoles()) {
+            for (RoleEntity role : entity.getRoles()) {
                 roles.add(mapper.map(role, RoleEntity.class));
             }
             old.setRoles(roles);
