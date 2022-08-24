@@ -14,6 +14,8 @@ import java.util.Map;
 public interface ICheckinService {
 	CheckinDTO save(String code);
 
+	List<CheckinDTO> findByUserId(Long userId);
+
 	List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id);
 
 	List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate);
@@ -21,4 +23,6 @@ public interface ICheckinService {
 	List<CheckinsCount> countCheckinsByUser();
 
 	Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String,String> json, Pageable pageable);
+
+
 }

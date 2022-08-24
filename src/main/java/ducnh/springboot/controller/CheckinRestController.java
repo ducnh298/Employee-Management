@@ -2,19 +2,15 @@ package ducnh.springboot.controller;
 
 import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.model.entity.CheckinEntity;
-import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.projection.CheckinsCount;
 import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.service.IUserService;
-import ducnh.springboot.specifications.UserSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -39,8 +35,8 @@ public class CheckinRestController {
 
     @GetMapping()
     @Cacheable("checkin")
-    public ResponseEntity<List<CheckinEntity>> getCheckin(@RequestParam String checkinCode) {
-        return new ResponseEntity<>(userService.findByCheckinCode(UserEntity.class, checkinCode).getCheckins(), HttpStatus.OK);
+    public ResponseEntity<List<CheckinDTO>> getCheckin(@RequestParam String checkinCode) {
+        return new ResponseEntity<>(userService.findByCheckinCode(UserDTO.class, checkinCode).getCheckins(), HttpStatus.OK);
     }
 
     @GetMapping(value = "/find-between-dates")

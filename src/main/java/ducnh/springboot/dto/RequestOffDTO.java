@@ -27,7 +27,7 @@ public class RequestOffDTO extends BaseDTO {
     private Status status;
 
 
-    private UserEntity user;
+    private UserDTO user;
 
     public void setDayRequestOff(String dayRequestOff) throws ParseException {
         this.dayRequestOff = new SimpleDateFormat(DateFormat.dMyHms).format(dayOff);

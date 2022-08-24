@@ -18,8 +18,5 @@ public class RoleDTO extends BaseDTO {
 	private String name;
 
 	private String detail;
-
-	@JsonIgnore
-	private List<UserDTO> users = new ArrayList<>();
 	
 }

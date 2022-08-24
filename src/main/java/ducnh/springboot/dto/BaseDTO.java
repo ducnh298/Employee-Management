@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ducnh.springboot.utils.DateFormat;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,24 +16,30 @@ import lombok.Setter;
 @Setter
 public abstract class BaseDTO {
 
-	private Long id;
+    private Long id;
 
-	@Setter
-	private String createdTime;
-
+    @Getter(AccessLevel.NONE)
 	@JsonIgnore
-	private Timestamp createdDate;
+    private String createdTime;
 
-	@JsonIgnore
-	private String createdBy;
+    @JsonIgnore
+    private Timestamp createdDate;
 
-	@JsonIgnore
-	private Timestamp modifiedDate;
+    @JsonIgnore
+    private String createdBy;
 
-	@JsonIgnore
-	private String modifiedBy;
+    @JsonIgnore
+    private Timestamp modifiedDate;
 
-	public void setCreatedTime(String createdTime) {
-		this.createdTime = new SimpleDateFormat(DateFormat.dMyHms).format(createdDate);
-	}
+    @JsonIgnore
+    private String modifiedBy;
+
+//	public void setCreatedTime(String createdTime) {
+//		this.createdTime = new SimpleDateFormat(DateFormat.dMyHms).format(createdDate);
+//	}
+
+//    public String getCreatedTime() {
+//        createdTime = new SimpleDateFormat(DateFormat.dMyHms).format(createdDate);
+//        return createdTime;
+//    }
 }

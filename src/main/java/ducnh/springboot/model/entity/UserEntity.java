@@ -59,11 +59,13 @@ public class UserEntity extends BaseEntity {
 	@JsonIgnore
 	private List<RequestOffEntity> requestOffs = new ArrayList<>();
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="workinghour_id",referencedColumnName = "id")
+	@OneToOne(mappedBy = "user",cascade={CascadeType.PERSIST,CascadeType.REMOVE},fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
-	@BatchSize(size=10)
 	@JsonIgnore
 	private WorkingHourEntity workinghour;
+
+	@OneToMany(mappedBy = "user", targetEntity = RequestWorkingHourEntity.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<RequestWorkingHourEntity> requestWorkingHours = new ArrayList<>();
 	
 }

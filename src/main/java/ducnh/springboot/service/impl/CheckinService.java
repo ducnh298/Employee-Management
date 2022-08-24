@@ -1,38 +1,36 @@
 package ducnh.springboot.service.impl;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import ducnh.springboot.converter.CheckinConverter;
+import ducnh.springboot.dto.CheckinDTO;
+import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.enumForEntity.Status;
+import ducnh.springboot.model.entity.CheckinEntity;
 import ducnh.springboot.model.entity.RequestOffEntity;
+import ducnh.springboot.model.entity.UserEntity;
+import ducnh.springboot.projection.CheckinsCount;
+import ducnh.springboot.repository.CheckinRepository;
 import ducnh.springboot.repository.RequestOffRepository;
+import ducnh.springboot.repository.UserRepository;
+import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.specifications.FilterSpecification;
 import ducnh.springboot.specifications.SearchCriteria;
+import ducnh.springboot.utils.DateFormat;
+import ducnh.springboot.utils.DateUtils;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import ducnh.springboot.dto.CheckinDTO;
-import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.model.entity.CheckinEntity;
-import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.projection.CheckinsCount;
-import ducnh.springboot.repository.CheckinRepository;
-import ducnh.springboot.repository.UserRepository;
-import ducnh.springboot.service.ICheckinService;
-import ducnh.springboot.utils.DateFormat;
-import ducnh.springboot.utils.DateUtils;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CheckinService implements ICheckinService {
@@ -54,6 +52,15 @@ public class CheckinService implements ICheckinService {
 
 	@Autowired
 	CheckinConverter checkinConverter;
+
+	public void addPropertyMap(){
+		mapper.addMappings(new PropertyMap<CheckinEntity, CheckinDTO>() {
+			@Override
+			protected void configure() {
+				map().setUser(mapper.map(source.getUser(), UserDTO.class));
+			}
+		});
+	}
 
 	public CheckinDTO save(String checkinCode) {
 		CheckinDTO checkinDTO = new CheckinDTO();
@@ -116,6 +123,10 @@ public class CheckinService implements ICheckinService {
 
 	}
 
+	@Override
+	public List<CheckinDTO> findByUserId(Long userId) {
+		return checkinConverter.toDTOList(checkinRepository.findByUserId(userId));
+	}
 
 	@Override
 	public List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id) {
@@ -129,7 +140,6 @@ public class CheckinService implements ICheckinService {
 
 		return checkinConverter.toDTOList(entities);
 	}
-
 
 	@Override
 	public List<CheckinsCount> countCheckinsByUser() {

@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -28,7 +27,9 @@ public class RequestOffEntity extends BaseEntity {
     private Timestamp dayOff;
     @Enumerated(EnumType.STRING)
     private TimeOff timeOff;
+
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Status status = Status.PENDING;
 
     @ManyToOne

@@ -1,8 +1,9 @@
 package ducnh.springboot.service.impl;
 
+import ducnh.springboot.converter.RoleConverter;
 import ducnh.springboot.converter.UserConverter;
-import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.dto.WorkingHourDTO;
 import ducnh.springboot.enumForEntity.Provider;
 import ducnh.springboot.model.entity.RoleEntity;
 import ducnh.springboot.model.entity.UserEntity;
@@ -10,11 +11,11 @@ import ducnh.springboot.model.entity.WorkingHourEntity;
 import ducnh.springboot.repository.RoleRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
-import ducnh.springboot.service.IRoleService;
 import ducnh.springboot.service.IUserService;
 import ducnh.springboot.utils.RandomUtils;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-//@PropertySource("classpath:workingtime.properties")
 public class UserService implements IUserService {
 
     @Autowired
@@ -40,19 +40,29 @@ public class UserService implements IUserService {
     WorkingHourRepository workingHourRepository;
 
     @Autowired
-    IRoleService roleService;
-
-    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
     UserConverter converter;
 
     @Autowired
+    RoleConverter roleConverter;
+
+    @Autowired
     RandomUtils randomUtils;
 
     @Autowired
     RoleRepository roleRepository;
+
+    public void addPropertyMap(){
+        modelMapper.addMappings(new PropertyMap<UserEntity, UserDTO>() {
+            @Override
+            protected void configure() {
+                map().setWorkingHour(modelMapper.map(source.getWorkinghour(), WorkingHourDTO.class));
+                map().setRoles(roleConverter.toDTOSet(source.getRoles()));
+            }
+        });
+    }
 
     @Transactional(rollbackOn = Exception.class)
     @Override

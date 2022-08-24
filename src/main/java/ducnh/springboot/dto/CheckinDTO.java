@@ -17,8 +17,7 @@ public class CheckinDTO extends BaseDTO {
 	SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.dMyHms);
 	
 	private String dayOfWeek;
-	
-	@Setter(AccessLevel.NONE)
+
 	@Getter(AccessLevel.NONE)
 	private String checkinTime;
 
@@ -74,10 +73,4 @@ public class CheckinDTO extends BaseDTO {
 		return checkinTime;
 	}
 
-	public void setCheckinTime() {
-		checkinTime = sdf.format(getCreatedDate());
-	}
-
-
-	
 }
