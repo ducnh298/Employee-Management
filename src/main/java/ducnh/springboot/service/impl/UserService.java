@@ -61,11 +61,11 @@ public class UserService implements IUserService {
 
         if (user.getRoles() != null) {
             user.setRoles(user.getRoles().stream().map(role ->
-                roleRepository.findById(role.getId()).orElse(null)).collect(Collectors.toSet()));
+                roleRepository.findById(role.getId()).get()).collect(Collectors.toSet()));
         }
 
         if (user.getId() != null) {
-            UserEntity oldUserEntity = userRepository.findById(user.getId()).orElse(null);
+            UserEntity oldUserEntity = userRepository.findById(user.getId()).get();
             userEntity = converter.toEntity(user, oldUserEntity);
         } else {
             userEntity = modelMapper.map(user, UserEntity.class);
@@ -114,7 +114,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO findById(Long id) {
-        return modelMapper.map(userRepository.findById(id), UserDTO.class);
+        return modelMapper.map(userRepository.findById(id).get(), UserDTO.class);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class UserService implements IUserService {
         Set<RoleEntity> roles = user.getRoles();
         List<RoleEntity> listRole= new ArrayList<>();
         for(Long roleId:roleIds)
-            listRole.add(roleRepository.findById(roleId).orElse(null));
+            listRole.add(roleRepository.findById(roleId).get());
         roles.removeAll(listRole);
 
         user.setRoles(roles);

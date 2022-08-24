@@ -55,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/employee-management/find/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/employee-management/").hasAnyRole("HR", "STAFF")
                 .antMatchers(HttpMethod.GET,"/working-hour/*").hasAnyRole("HR","STAFF","INTERN")
-                //.antMatchers("/request-off/*").hasAnyRole("HR","STAFF","INTERN")
+                .antMatchers(HttpMethod.POST,"/request-off/*").hasAnyRole("HR","STAFF","INTERN")
 
                 // .antMatchers(HttpMethod.POST,"/checkin/**").hasAnyRole("HR","STAFF","INTERN")
                 // .antMatchers("/checkin/*").hasAnyRole("HR","STAFF","INTERN")

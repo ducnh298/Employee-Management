@@ -58,6 +58,7 @@ public class CheckinService implements ICheckinService {
 	public CheckinDTO save(String checkinCode) {
 		CheckinDTO checkinDTO = new CheckinDTO();
 		LocalDateTime dateTimeNow = LocalDateTime.now();
+		Timestamp dateNow = null;
 
 		UserEntity user = userRepository.findByCheckinCode(UserEntity.class, checkinCode);
 		UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -66,18 +67,23 @@ public class CheckinService implements ICheckinService {
 		Timestamp dateNowPlus1;
 		List<CheckinDTO> list = new ArrayList<>();
 
-		Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL,user));
+		Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, user));
 		Specification<RequestOffEntity> spec2 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED));
 		Specification<RequestOffEntity> spec3 = null;
 		Specification<RequestOffEntity> spec4 = null;
 	
 			try {
-				dateNowPlus1 = dateUtils.addDay(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md),1);
+				dateNow = 	dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md);
+
+				dateNowPlus1 = dateUtils.addDay(dateNow,1);
 				System.out.println("date now plus 1 "+dateNowPlus1);
-				list = getCheckinsBetweenDatesById(dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md), dateNowPlus1, user.getId());
-				spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.GREATER_,new SimpleDateFormat(DateFormat.y_Md).parse(String.valueOf(Date.from(dateTimeNow.atZone(ZoneId.systemDefault()).toInstant())))));
-				System.out.println("timestamp: "+dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md));
-				spec3 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.LESS,dateNowPlus1));
+				list = getCheckinsBetweenDatesById(dateNow, dateNowPlus1, user.getId());
+
+				spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.BETWEEN,
+						new SimpleDateFormat(DateFormat.y_Md).parse(dateTimeNow.toString()),
+						new SimpleDateFormat(DateFormat.y_Md).parse(dateNowPlus1.toString())));
+				System.out.println("timestamp: "+dateNow);
+				//spec3 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.LESS, dateNowPlus1));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -113,20 +119,15 @@ public class CheckinService implements ICheckinService {
 
 	@Override
 	public List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id) {
-		List<CheckinDTO> result = new ArrayList<>();
 		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDatesById(startDate, endDate, id);
-		for (CheckinEntity entity : entities)
-			result.add(mapper.map(entity, CheckinDTO.class));
-		return result;
+		return checkinConverter.toDTOList(entities);
 	}
 
 	@Override
 	public List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate) {
-		List<CheckinDTO> result = new ArrayList<>();
 		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDates(startDate, endDate);
-		for (CheckinEntity entity : entities)
-			result.add(mapper.map(entity, CheckinDTO.class));
-		return result;
+
+		return checkinConverter.toDTOList(entities);
 	}
 
 

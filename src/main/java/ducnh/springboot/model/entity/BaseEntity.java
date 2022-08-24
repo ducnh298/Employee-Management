@@ -33,6 +33,7 @@ public abstract class BaseEntity {
 
 	@Column
 	@CreatedDate
+	@JsonIgnore
 	private Timestamp createdDate;
 
 	@Column
