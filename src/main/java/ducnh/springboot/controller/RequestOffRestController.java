@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,14 +31,14 @@ public class RequestOffRestController {
 
     @GetMapping("/find-all")
     @Secured({"HR", "STAFF"})
-    public List<RequestOffDTO> findAll(@RequestBody Map<String, Timestamp> json,
+    public List<RequestOffDTO> findAll(@RequestBody Map<String, Date> json,
                                        @RequestParam(value = "status", required = false) Optional<String> status) throws ParseException {
         Specification<RequestOffEntity> spec = new FilterSpecification<>(new SearchCriteria("id", SearchCriteria.Operation.GREATER, 0));
         if (json.get("start") == null) {
-            json.put("start",Timestamp.valueOf("2018-08-29")) ;
+            json.put("start", (Date) new SimpleDateFormat(DateFormat.y_Md).parse("2018-08-29"));
         }
         if (json.get("end") == null) {
-            json.put("end",Timestamp.valueOf("2035-08-29")) ;
+            json.put("end",(Date) new SimpleDateFormat(DateFormat.y_Md).parse("2035-08-29"));
         }
         if(json.get("start") != null || json.get("end") != null){
             FilterSpecification<RequestOffEntity> spec1 = new FilterSpecification<>(

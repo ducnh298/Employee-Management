@@ -12,6 +12,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -24,7 +25,7 @@ import java.sql.Timestamp;
 public class RequestOffEntity extends BaseEntity {
     @Column(nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Timestamp dayOff;
+    private Date dayOff;
     @Enumerated(EnumType.STRING)
     private TimeOff timeOff;
 
