@@ -17,6 +17,10 @@ import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 @Service
 public class UserService implements IUserService {
@@ -66,8 +71,9 @@ public class UserService implements IUserService {
 
     @Transactional(rollbackOn = Exception.class)
     @Override
+    @CacheEvict(value="user",allEntries = true)
     public UserDTO save(@NotNull UserEntity user) {
-        UserEntity userEntity;
+        UserEntity userEntity ;
 
         if (user.getRoles() != null) {
             user.setRoles(user.getRoles().stream().map(role ->
@@ -76,7 +82,7 @@ public class UserService implements IUserService {
 
         if (user.getId() != null) {
             UserEntity oldUserEntity = userRepository.findById(user.getId()).get();
-            userEntity = converter.toEntity(user, oldUserEntity);
+            userEntity = converter.toEntity(user,oldUserEntity);
         } else {
             userEntity = modelMapper.map(user, UserEntity.class);
             userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
@@ -101,38 +107,44 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @CacheEvict(value="user",allEntries = true)
     public void delete(Long[] ids) {
         for (Long id : ids)
             userRepository.deleteById(id);
     }
 
     @Override
+    @Cacheable("user")
     public List<UserDTO> findAll() {
         return converter.toDTOList(userRepository.findAll());
     }
 
     @Override
+    @Cacheable("user")
     public Page<UserDTO> findAll(Pageable pageable) {
         return converter.toDTOPage(userRepository.findAll(pageable));
-
     }
 
     @Override
+    @Cacheable(value="user")
     public Page<UserDTO> findAll(Specification spec, Pageable pageable) {
         return converter.toDTOPage(userRepository.findAll(spec, pageable));
     }
 
     @Override
+    @Cacheable(value="user")
     public UserDTO findById(Long id) {
         return modelMapper.map(userRepository.findById(id).get(), UserDTO.class);
     }
 
     @Override
+    @Cacheable(value="user")
     public <T> T findByCheckinCode(Class<T> classtype,String code) {
         return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code),classtype);
     }
 
     @Override
+    @CachePut("user")
     public UserDTO deleteRoles(Long userId, Long[] roleIds) {
         UserEntity user = userRepository.findById(UserEntity.class,userId);
         Set<RoleEntity> roles = user.getRoles();
@@ -148,16 +160,19 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Cacheable("user")
     public List<UserDTO> findAllForgetCheckin(Timestamp today, Timestamp tomorrow) {
         return converter.toDTOList(userRepository.findAllForgetCheckin(today,tomorrow));
     }
 
     @Override
+    @Cacheable("user")
     public List<UserDTO> findAllForgetCheckout(Timestamp today, Timestamp tomorrow) {
         return converter.toDTOList(userRepository.findAllForgetCheckout(today,tomorrow));
     }
 
     @Override
+    @CacheEvict(value="user",allEntries = true)
     public void processOAuthPostLogin(String name,String email) {
         UserEntity existUser = userRepository.findByEmail(UserEntity.class,email);
 

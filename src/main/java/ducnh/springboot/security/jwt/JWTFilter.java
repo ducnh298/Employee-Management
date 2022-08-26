@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import ducnh.springboot.service.impl.UserDetailService;
+import ducnh.springboot.service.impl.CustomeUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -26,7 +26,7 @@ public class JWTFilter extends OncePerRequestFilter {
 	private JWTProvider jwtProvider;
 
 	@Autowired
-	private UserDetailService userService;
+	private CustomeUserDetailsService userService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

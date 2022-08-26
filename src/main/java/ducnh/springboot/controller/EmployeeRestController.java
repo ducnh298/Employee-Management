@@ -35,21 +35,18 @@ public class EmployeeRestController {
     IMailService mailService;
 
     @GetMapping(value = "/admin")
-    @Secured({"HR","PM"})
     public String adminPage() {
         return "welcome admin";
     }
 
     @GetMapping("/find")
-    @Cacheable("user")
     public UserDTO findById(@RequestParam Long id) {
         return userService.findById(id);
     }
 
     @GetMapping("/find-all")
-    @Cacheable(value = "user", unless = "#result == null")
     public ResponseEntity<Page<UserDTO>> findAll(@RequestParam(value = "orderBy", required = false) Optional<String> orderBy,
-                                                 @RequestParam(value = "page") int page,
+                                                 @RequestParam(value = "page", defaultValue = "1") int page,
                                                  @RequestParam(value = "roleName", required = false) Optional<String> roleName,
                                                  @RequestParam(value = "fullName", required = false) Optional<String> fullName,
                                                  @RequestParam(value = "userName", required = false) Optional<String> userName,
@@ -92,7 +89,6 @@ public class EmployeeRestController {
 
     @PostMapping
     @Secured({"HR","PM"})
-    @CachePut(value = "user")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserEntity user) {
         UserDTO dto = userService.save(user);
         if (dto != null) {
@@ -111,12 +107,11 @@ public class EmployeeRestController {
 //            System.out.println(
                     //mailService.sendMail(dto.getEmail(), " NCC's Employee Account Created ", content.toString()));
         }
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @Secured({"HR","PM"})
-    @CachePut(value = "user")
     public ResponseEntity<UserDTO> updateEmployee(@RequestBody UserEntity user, @PathVariable Long id) {
         user.setId(id);
         return new ResponseEntity<>(userService.save(user), HttpStatus.OK);
@@ -124,7 +119,6 @@ public class EmployeeRestController {
 
     @DeleteMapping
     @Secured({"HR","PM"})
-    @CacheEvict("user")
     public ResponseEntity<String> deleteEmployees(@RequestBody Long[] ids) {
         userService.delete(ids);
         return new ResponseEntity<>("deleted " + ids.length, HttpStatus.OK);
@@ -132,9 +126,18 @@ public class EmployeeRestController {
 
     @DeleteMapping("/delete-roles")
     @Secured({"HR","PM"})
-    @CacheEvict("user")
-    public ResponseEntity<UserDTO> deleteRoles(@RequestParam Long userId,@RequestBody Long[] roleIds) {
-        return new ResponseEntity<>(userService.deleteRoles(userId,roleIds), HttpStatus.OK);
+    public ResponseEntity<UserDTO> deleteRoles(@RequestParam Long id,@RequestBody Long[] roleIds) {
+        return new ResponseEntity<>(userService.deleteRoles(id,roleIds), HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete")
+    public String clearCache(@RequestBody Long id){
+        userService.delete(new Long[]{id});
+        return "deleted user id = "+id;
+    }
+    @DeleteMapping("/clear-cache")
+    @CacheEvict(value="user",allEntries = true)
+    public String clearCache(){
+        return "Cleared cache!";
+    }
 }

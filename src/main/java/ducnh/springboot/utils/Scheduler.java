@@ -1,11 +1,21 @@
 package ducnh.springboot.utils;
 
 import ducnh.springboot.dto.CheckinDTO;
+import ducnh.springboot.dto.RequestOffDTO;
 import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.enumForEntity.Status;
+import ducnh.springboot.enumForEntity.TimeOff;
+import ducnh.springboot.model.entity.RequestOffEntity;
+import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.service.IMailService;
+import ducnh.springboot.service.IRequestOffService;
 import ducnh.springboot.service.IUserService;
+import ducnh.springboot.specifications.FilterSpecification;
+import ducnh.springboot.specifications.SearchCriteria;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class Scheduler {
@@ -29,14 +40,19 @@ public class Scheduler {
     IUserService userService;
 
     @Autowired
+    IRequestOffService requestOffService;
+
+    @Autowired
     DateUtils dateUtils;
 
+    @Autowired
+    ModelMapper mapper;
+
     SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.dMy);
-    SimpleDateFormat sdf2 = new SimpleDateFormat(DateFormat.dMyHms);
 
     @Scheduled(cron = "0 40 08 ? * MON-FRI")
     @Async
-    public void checkinReminder() {
+    public void checkinReminder() throws ParseException {
         Timestamp now = null;
         try {
             now = dateUtils.parseLDT(LocalDateTime.now(), DateFormat.y_Md);
@@ -55,14 +71,14 @@ public class Scheduler {
             content.append(
                     "!<br> It's 08:30PM <br> Don't forget to checkin when you get to work, or -20.000vnđ!!!</h1>");
             System.out.println(content + "\n");
-//            mailService.sendMail(em.getEmail(), "Checkin reminder", content.toString());
+//            mailService.sendMail(em.getEmail(), "Checkin reminder"+sdf.parse(String.valueOf(now)), content.toString());
         }
 
     }
 
-    @Scheduled(cron = "0 30 17 ? * MON-FRI")
+    @Scheduled(cron = "0 45 17 ? * MON-FRI")
     @Async
-    public void checkoutReminder() {
+    public void checkoutReminder() throws ParseException {
         Timestamp now = null;
         try {
             now = dateUtils.parseLDT(LocalDateTime.now(), DateFormat.y_Md);
@@ -78,23 +94,23 @@ public class Scheduler {
             content.append(
                     "!<br> It's 17:30PM <br> Don't forget to checkout when you leave work, or -20.000vnđ!!!</h1>");
             System.out.println(content + "\n");
-            //  mailService.sendMail(em.getEmail(), "Checkout reminder " + now, content.toString());
+//              mailService.sendMail(em.getEmail(), "Checkout reminder " + sdf.parse(String.valueOf(now)), content.toString());
         }
     }
 
-    @Scheduled(cron = "00 15 20 ? * SAT")
+    @Scheduled(cron = "20 54 10 ? * THU")
     @Async
     public void weeklyCheckins() {
 
-        List<UserDTO> listE = userService.findAll(null).getContent();
-        LocalDateTime saturday1 = LocalDateTime.now();
+        List<UserDTO> listE = userService.findAll();
+        LocalDateTime saturdayLDT = LocalDateTime.now();
 
         for (UserDTO em : listE) {
             Timestamp saturday = null;
             Timestamp workingDay = null;
             try {
-                saturday = dateUtils.parseLDT(saturday1, DateFormat.y_MdHms);
-                workingDay = dateUtils.parseLDT(dateUtils.addDay(saturday, -5).toLocalDateTime(), DateFormat.y_MdHms);
+                saturday = dateUtils.parseLDT(saturdayLDT, DateFormat.y_Md);
+                workingDay = dateUtils.parseLDT(dateUtils.addDay(saturday, -5).toLocalDateTime(), DateFormat.y_Md);
             } catch (ParseException e) {
 
                 e.printStackTrace();
@@ -106,31 +122,70 @@ public class Scheduler {
             content.append("Here's your checkin list and penalties this week.");
             content.append(
                     "<br> If you see any mistakes, please do not hesitate to <a href=\"http://timesheet.nccsoft.vn/app/main/mytimesheets\">complain your PM</a>.</h1><br><br>");
-
+            int countPen = 0;
             for (int i = 0; i < 5; i++) {
+
+
+                content.append(workingDay.toLocalDateTime().toLocalDate().getDayOfWeek().toString() + " " + sdf.format(workingDay) + ": <br>");
+
                 Timestamp workingDayPlus1 = dateUtils.addDay(workingDay, 1);
                 List<CheckinDTO> checkin1Day = checkinService.getCheckinsBetweenDatesById(workingDay, workingDayPlus1,
                         em.getId());
+                Specification<RequestOffEntity> spec = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, mapper.map(em, UserEntity.class)));
+                spec = spec.and(new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED)));
+                try {
+                    spec = spec.and(new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.BETWEEN,
+                            new SimpleDateFormat(DateFormat.y_Md).parse(workingDay.toString()),
+                            new SimpleDateFormat(DateFormat.y_Md).parse(workingDayPlus1.toString()))));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
-                if (checkin1Day.size() > 0) {
+                Optional<RequestOffDTO> oRequestOff = requestOffService.findAll(spec).stream()
+                        .filter(request -> request.getStatus().equals(Status.APPROVED)).findFirst();
+                RequestOffDTO requestOff = null;
+                if (oRequestOff.isPresent())
+                    requestOff = oRequestOff.get();
 
+                int countCheckin1Day = checkin1Day.size();
+
+                if (requestOff != null) {
+                    if (requestOff.getTimeOff().equals(TimeOff.FULLDAY)) {
+                        content.append("<font color=cyan>OFF FULL DAY </font>");
+                        countCheckin1Day = -1;
+                    } else if (requestOff.getTimeOff().equals(TimeOff.MORNING))
+                        content.append("<font color=cyan>OFF MORNING  </font><br>");
+                    else if (requestOff.getTimeOff().equals(TimeOff.AFTERNOON))
+                        content.append("<font color=cyan>OFF AFTERNOON  </font><br>");
+                }
+
+                if (countCheckin1Day > 0) {
                     content.append(checkin1Day.get(0).toString() + "<br>");
-                    if (checkin1Day.size() > 1)
-                        content.append(checkin1Day.get(checkin1Day.size() - 1).toString());
-                    else
-                        content.append("<font color=red>" + checkin1Day.get(0).getDayOfWeek() + " - "
-                                + sdf2.format(checkin1Day.get(0).getCreatedDate())
-                                + " You forgot to checkout, penalty = 20.000vnd.</font>");
-                } else {
-                    content.append("<font color=red>" + sdf.format(workingDay)
-                            + " You forgot to checkin and checkout, penalty = 40.000vnd.</font>");
+                    if (countCheckin1Day > 1) {
+                        content.append(checkin1Day.get(countCheckin1Day - 1).toString());
+                        if (checkin1Day.get(0).getResultTime() > 15)
+                            countPen++;
+                        if (checkin1Day.get(countCheckin1Day - 1).getResultTime() > 15)
+                            countPen++;
+                    } else if (countCheckin1Day == 1)
+                        content.append("<font color=red>"
+                                + " You forgot to checkout, penalty = 20.000 VND.</font>");
+                    if (checkin1Day.get(0).getResultTime() > 15)
+                        countPen++;
+                    countPen++;
+                } else if (countCheckin1Day == 0) {
+                    content.append("<font color=red>"
+                            + " You forgot to checkin and checkout => penalty = 40.000 VND.</font>");
+                    countPen += 2;
                 }
                 content.append("<br>-----------------------------------------------<br>");
                 workingDay = workingDayPlus1;
             }
+            if (countPen != 0)
+                content.append("<h2><b>Total checkin's penalties count: " + countPen + " = " + countPen * 20 + ".000 VND</b></h2>");
 
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(Timestamp.valueOf(saturday1).getTime());
+            calendar.setTimeInMillis(saturday.getTime());
 
             mailService.sendMail(em.getEmail(),
                     calendar.get(Calendar.WEEK_OF_YEAR) - 1 + "th Weekly Checkin list and penalties: "
@@ -139,5 +194,6 @@ public class Scheduler {
                     content.toString());
         }
     }
+
 
 }

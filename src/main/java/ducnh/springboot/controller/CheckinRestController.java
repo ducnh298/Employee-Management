@@ -35,8 +35,8 @@ public class CheckinRestController {
 
     @GetMapping()
     @Cacheable("checkin")
-    public ResponseEntity<List<CheckinDTO>> getCheckin(@RequestParam String checkinCode) {
-        return new ResponseEntity<>(userService.findByCheckinCode(UserDTO.class, checkinCode).getCheckins(), HttpStatus.OK);
+    public ResponseEntity<List<CheckinDTO>> getCheckinByUserId(@RequestParam Long userId) {
+        return new ResponseEntity<>(checkinService.findByUserId(userId), HttpStatus.OK);
     }
 
     @GetMapping(value = "/find-between-dates")

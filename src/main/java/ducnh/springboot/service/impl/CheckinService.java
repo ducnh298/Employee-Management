@@ -77,25 +77,21 @@ public class CheckinService implements ICheckinService {
 		Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, user));
 		Specification<RequestOffEntity> spec2 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED));
 		Specification<RequestOffEntity> spec3 = null;
-		Specification<RequestOffEntity> spec4 = null;
-	
+
 			try {
 				dateNow = 	dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md);
-
 				dateNowPlus1 = dateUtils.addDay(dateNow,1);
-				System.out.println("date now plus 1 "+dateNowPlus1);
 				list = getCheckinsBetweenDatesById(dateNow, dateNowPlus1, user.getId());
 
 				spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.BETWEEN,
 						new SimpleDateFormat(DateFormat.y_Md).parse(dateTimeNow.toString()),
 						new SimpleDateFormat(DateFormat.y_Md).parse(dateNowPlus1.toString())));
-				System.out.println("timestamp: "+dateNow);
-				//spec3 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.LESS, dateNowPlus1));
+
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 
-		List<RequestOffEntity> requestList = requestOffRepository.findAll(spec1.and(spec2).and(spec3).and(spec4));
+		List<RequestOffEntity> requestList = requestOffRepository.findAll(spec1.and(spec2).and(spec3));
 		RequestOffEntity request = null;
 		if(requestList.size()>0)
 			request = requestList.get(0);

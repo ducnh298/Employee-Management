@@ -3,7 +3,7 @@ package ducnh.springboot.controller;
 import ducnh.springboot.dto.JWTResponse;
 import ducnh.springboot.security.jwt.JWTProvider;
 import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.impl.UserDetailService;
+import ducnh.springboot.service.impl.CustomeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class HomeRestController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    UserDetailService userDetailService;
+    CustomeUserDetailsService userDetailService;
 
     @Autowired
     IMailService mailService;

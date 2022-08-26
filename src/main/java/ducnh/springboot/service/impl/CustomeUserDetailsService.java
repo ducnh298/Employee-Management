@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -17,12 +18,13 @@ import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.repository.UserRepository;
 
 @Service
-public class UserDetailService implements UserDetailsService {
+public class CustomeUserDetailsService implements UserDetailsService {
 
 	@Autowired
 	UserRepository userRepository;
 
 	@Override
+	@Cacheable(key="#username",value="jwt")
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = userRepository.findByUsername(UserEntity.class, username);
 		if (user == null) {

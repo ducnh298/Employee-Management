@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import ducnh.springboot.security.jwt.JWTFilter;
-import ducnh.springboot.service.impl.UserDetailService;
+import ducnh.springboot.service.impl.CustomeUserDetailsService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +32,7 @@ import java.io.IOException;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    UserDetailService userDetailService;
+    CustomeUserDetailsService userDetailService;
 
     @Autowired
     IUserService userService;

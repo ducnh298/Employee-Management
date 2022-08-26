@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-@Service
+
 public interface ICheckinService {
 	CheckinDTO save(String code);
 
