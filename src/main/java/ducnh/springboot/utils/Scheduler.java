@@ -1,16 +1,11 @@
 package ducnh.springboot.utils;
 
-import ducnh.springboot.dto.CheckinDTO;
-import ducnh.springboot.dto.RequestOffDTO;
-import ducnh.springboot.dto.UserDTO;
+import ducnh.springboot.dto.WorkingHourDTO;
 import ducnh.springboot.enumForEntity.Status;
 import ducnh.springboot.enumForEntity.TimeOff;
-import ducnh.springboot.model.entity.RequestOffEntity;
-import ducnh.springboot.model.entity.UserEntity;
-import ducnh.springboot.service.ICheckinService;
+import ducnh.springboot.model.entity.*;
+import ducnh.springboot.repository.*;
 import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.IRequestOffService;
-import ducnh.springboot.service.IUserService;
 import ducnh.springboot.specifications.FilterSpecification;
 import ducnh.springboot.specifications.SearchCriteria;
 import org.modelmapper.ModelMapper;
@@ -20,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,13 +30,19 @@ public class Scheduler {
     IMailService mailService;
 
     @Autowired
-    ICheckinService checkinService;
+    CheckinRepository checkinRepo;
 
     @Autowired
-    IUserService userService;
+    UserRepository userRepo;
 
     @Autowired
-    IRequestOffService requestOffService;
+    RequestOffRepository requestOffRepo;
+
+    @Autowired
+    RequestWorkingHourRepository requestWorkingHourRepo;
+
+    @Autowired
+    WorkingHourRepository workingHourRepo;
 
     @Autowired
     DateUtils dateUtils;
@@ -63,9 +65,9 @@ public class Scheduler {
 
 
 // 	Using native query
-        List<UserDTO> listEmNotCheckinToday = userService.findAllForgetCheckin(now, nowPlus1Day);
+        List<UserEntity> listEmNotCheckinToday = userRepo.findAllForgetCheckin(now, nowPlus1Day);
         System.out.println("size: " + listEmNotCheckinToday.size() + "\n");
-        for (UserDTO em : listEmNotCheckinToday) {
+        for (UserEntity em : listEmNotCheckinToday) {
             StringBuilder content = new StringBuilder("<h1>Hi ");
             content.append(em.getFullname());
             content.append(
@@ -86,9 +88,9 @@ public class Scheduler {
             e.printStackTrace();
         }
         Timestamp nowPlus1Day = dateUtils.addDay(now, 1);
-        List<UserDTO> listEmNotCheckoutToday = userService.findAllForgetCheckout(now, nowPlus1Day);
+        List<UserEntity> listEmNotCheckoutToday = userRepo.findAllForgetCheckout(now, nowPlus1Day);
         System.out.println("size: " + listEmNotCheckoutToday.size() + "\n");
-        for (UserDTO em : listEmNotCheckoutToday) {
+        for (UserEntity em : listEmNotCheckoutToday) {
             StringBuilder content = new StringBuilder("<h1>Hi ");
             content.append(em.getFullname());
             content.append(
@@ -102,10 +104,10 @@ public class Scheduler {
     @Async
     public void weeklyCheckins() {
 
-        List<UserDTO> listE = userService.findAll();
+        List<UserEntity> listE = userRepo.findAll();
         LocalDateTime saturdayLDT = LocalDateTime.now();
 
-        for (UserDTO em : listE) {
+        for (UserEntity em : listE) {
             Timestamp saturday = null;
             Timestamp workingDay = null;
             try {
@@ -129,7 +131,7 @@ public class Scheduler {
                 content.append(workingDay.toLocalDateTime().toLocalDate().getDayOfWeek().toString() + " " + sdf.format(workingDay) + ": <br>");
 
                 Timestamp workingDayPlus1 = dateUtils.addDay(workingDay, 1);
-                List<CheckinDTO> checkin1Day = checkinService.getCheckinsBetweenDatesById(workingDay, workingDayPlus1,
+                List<CheckinEntity> checkin1Day = checkinRepo.getCheckinsBetweenDatesById(workingDay, workingDayPlus1,
                         em.getId());
                 Specification<RequestOffEntity> spec = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, mapper.map(em, UserEntity.class)));
                 spec = spec.and(new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED)));
@@ -141,9 +143,9 @@ public class Scheduler {
                     e.printStackTrace();
                 }
 
-                Optional<RequestOffDTO> oRequestOff = requestOffService.findAll(spec).stream()
+                Optional<RequestOffEntity> oRequestOff = requestOffRepo.findAll(spec).stream()
                         .filter(request -> request.getStatus().equals(Status.APPROVED)).findFirst();
-                RequestOffDTO requestOff = null;
+                RequestOffEntity requestOff = null;
                 if (oRequestOff.isPresent())
                     requestOff = oRequestOff.get();
 
@@ -160,9 +162,9 @@ public class Scheduler {
                 }
 
                 if (countCheckin1Day > 0) {
-                    content.append(checkin1Day.get(0).toString() + "<br>");
+                    content.append(checkin1Day.get(0) + "<br>");
                     if (countCheckin1Day > 1) {
-                        content.append(checkin1Day.get(countCheckin1Day - 1).toString());
+                        content.append(checkin1Day.get(countCheckin1Day - 1));
                         if (checkin1Day.get(0).getResultTime() > 15)
                             countPen++;
                         if (checkin1Day.get(countCheckin1Day - 1).getResultTime() > 15)
@@ -195,5 +197,37 @@ public class Scheduler {
         }
     }
 
+    @Scheduled(cron = "00 00 05 * * *")
+    @Async
+    public void applyNewWorkingHour() throws ParseException {
+        Timestamp todayTS = new Timestamp(System.currentTimeMillis());
+        Timestamp todayTSPlus1 = dateUtils.addDay(todayTS,1);
 
+        Specification<RequestWorkingHourEntity> spec = new FilterSpecification<>(
+                new SearchCriteria("applyDate", SearchCriteria.Operation.BETWEEN,
+                        new SimpleDateFormat(DateFormat.y_Md).parse(todayTS.toString()),
+                        new SimpleDateFormat(DateFormat.y_Md).parse(todayTSPlus1.toString())));
+
+        spec = spec.and(new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL,Status.APPROVED)));
+
+        List<RequestWorkingHourEntity> list = requestWorkingHourRepo.findAll(spec);
+
+        if (!list.isEmpty()){
+            for(RequestWorkingHourEntity entity:list){
+                WorkingHourEntity workingHour = workingHourRepo.findByUserId(entity.getUser().getId());
+                Long workingHourId = workingHour.getId();
+                workingHour = mapper.map(entity, WorkingHourEntity.class);
+                workingHour.setId(workingHourId);
+                workingHourRepo.save(workingHour);
+
+                StringBuilder content = new StringBuilder("<h1>Hi ");
+                content.append(workingHour.getUser().getFullname());
+                content.append("<br> Your new working hour has been applied <br>");
+                content.append("<br> Remember to checkin/checkout with your new working hour</h1><br>");
+                content.append(mapper.map(workingHour, WorkingHourDTO.class).toString());
+
+                mailService.sendMail(workingHour.getUser().getEmail(),"Apply new Working hour "+new SimpleDateFormat(DateFormat.y_Md).format(todayTS), content.toString());
+            }
+        }
+    }
 }

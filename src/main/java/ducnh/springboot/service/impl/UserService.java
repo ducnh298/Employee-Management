@@ -59,7 +59,7 @@ public class UserService implements IUserService {
     @Autowired
     RoleRepository roleRepository;
 
-    public void addPropertyMap(){
+    public void addPropertyMap() {
         modelMapper.addMappings(new PropertyMap<UserEntity, UserDTO>() {
             @Override
             protected void configure() {
@@ -71,43 +71,50 @@ public class UserService implements IUserService {
 
     @Transactional(rollbackOn = Exception.class)
     @Override
-    @CacheEvict(value="user",allEntries = true)
+    @CacheEvict(value = "user", allEntries = true)
     public UserDTO save(@NotNull UserEntity user) {
-        UserEntity userEntity ;
+        UserEntity userEntity = null;
 
         if (user.getRoles() != null) {
             user.setRoles(user.getRoles().stream().map(role ->
-                roleRepository.findById(role.getId()).get()).collect(Collectors.toSet()));
+                    roleRepository.findById(role.getId()).get()).collect(Collectors.toSet()));
         }
 
         if (user.getId() != null) {
             UserEntity oldUserEntity = userRepository.findById(user.getId()).get();
-            userEntity = converter.toEntity(user,oldUserEntity);
+            userEntity = converter.toEntity(user, oldUserEntity);
         } else {
-            userEntity = modelMapper.map(user, UserEntity.class);
-            userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
-            userEntity.setProvider(Provider.LOCAL);
 
-            String code = "";
-            while (userRepository.findByCheckinCode(UserEntity.class, code) != null || code.equals("")) {
-                code = randomUtils.randCheckinCode();
+            if (userRepository.findByUsername(UserEntity.class, user.getUsername()) != null
+                    && userRepository.findByEmail(UserEntity.class, user.getEmail()) != null) {
+                userEntity = user;
+
+                userEntity.setPassword(new BCryptPasswordEncoder().encode("12345"));
+                userEntity.setProvider(Provider.LOCAL);
+
+                String code = "";
+                while (userRepository.findByCheckinCode(UserEntity.class, code) != null || code.equals("")) {
+                    code = randomUtils.randCheckinCode();
+                }
+                userEntity.setCheckinCode(code);
+
+                WorkingHourEntity workingHourEntity = new WorkingHourEntity();
+                workingHourEntity.setUser(userEntity);
+
+                workingHourEntity = workingHourRepository.save(workingHourEntity);
+
+                userEntity.setWorkinghour(workingHourEntity);
             }
-            userEntity.setCheckinCode(code);
-
-            WorkingHourEntity workingHourEntity = new WorkingHourEntity();
-            workingHourEntity.setUser(userEntity);
-
-            workingHourEntity = workingHourRepository.save(workingHourEntity);
-
-            userEntity.setWorkinghour(workingHourEntity);
         }
-
-        userEntity = userRepository.save(userEntity);
-        return modelMapper.map(userEntity, UserDTO.class);
+        if(userEntity!=null) {
+            userEntity = userRepository.save(userEntity);
+            return modelMapper.map(userEntity, UserDTO.class);
+        }
+        else return null;
     }
 
     @Override
-    @CacheEvict(value="user",allEntries = true)
+    @CacheEvict(value = "user", allEntries = true)
     public void delete(Long[] ids) {
         for (Long id : ids)
             userRepository.deleteById(id);
@@ -126,55 +133,55 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Cacheable(value="user")
+    @Cacheable(value = "user")
     public Page<UserDTO> findAll(Specification spec, Pageable pageable) {
         return converter.toDTOPage(userRepository.findAll(spec, pageable));
     }
 
     @Override
-    @Cacheable(value="user")
+    @Cacheable(value = "user")
     public UserDTO findById(Long id) {
         return modelMapper.map(userRepository.findById(id).get(), UserDTO.class);
     }
 
     @Override
-    @Cacheable(value="user")
-    public <T> T findByCheckinCode(Class<T> classtype,String code) {
-        return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code),classtype);
+    @Cacheable(value = "user")
+    public <T> T findByCheckinCode(Class<T> classtype, String code) {
+        return modelMapper.map(userRepository.findByCheckinCode(UserEntity.class, code), classtype);
     }
 
     @Override
     @CachePut("user")
     public UserDTO deleteRoles(Long userId, Long[] roleIds) {
-        UserEntity user = userRepository.findById(UserEntity.class,userId);
+        UserEntity user = userRepository.findById(UserEntity.class, userId);
         Set<RoleEntity> roles = user.getRoles();
-        List<RoleEntity> listRole= new ArrayList<>();
-        for(Long roleId:roleIds)
+        List<RoleEntity> listRole = new ArrayList<>();
+        for (Long roleId : roleIds)
             listRole.add(roleRepository.findById(roleId).get());
         roles.removeAll(listRole);
 
         user.setRoles(roles);
         userRepository.save(user);
 
-        return modelMapper.map(user,UserDTO.class);
+        return modelMapper.map(user, UserDTO.class);
     }
 
     @Override
     @Cacheable("user")
     public List<UserDTO> findAllForgetCheckin(Timestamp today, Timestamp tomorrow) {
-        return converter.toDTOList(userRepository.findAllForgetCheckin(today,tomorrow));
+        return converter.toDTOList(userRepository.findAllForgetCheckin(today, tomorrow));
     }
 
     @Override
     @Cacheable("user")
     public List<UserDTO> findAllForgetCheckout(Timestamp today, Timestamp tomorrow) {
-        return converter.toDTOList(userRepository.findAllForgetCheckout(today,tomorrow));
+        return converter.toDTOList(userRepository.findAllForgetCheckout(today, tomorrow));
     }
 
     @Override
-    @CacheEvict(value="user",allEntries = true)
-    public void processOAuthPostLogin(String name,String email) {
-        UserEntity existUser = userRepository.findByEmail(UserEntity.class,email);
+    @CacheEvict(value = "user", allEntries = true)
+    public void processOAuthPostLogin(String name, String email) {
+        UserEntity existUser = userRepository.findByEmail(UserEntity.class, email);
 
         if (existUser == null) {
             UserEntity newUser = new UserEntity();

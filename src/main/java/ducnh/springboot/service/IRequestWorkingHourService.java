@@ -4,6 +4,7 @@ import ducnh.springboot.dto.RequestWorkingHourDTO;
 import ducnh.springboot.model.entity.RequestWorkingHourEntity;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface IRequestWorkingHourService {
@@ -15,5 +16,5 @@ public interface IRequestWorkingHourService {
 
     List<RequestWorkingHourDTO> findMyRequestWorkingHour();
 
-    List<RequestWorkingHourDTO> updateStatus(Long[] userIds, String status);
+    List<RequestWorkingHourDTO> updateStatus(Long[] userIds, String status) throws ParseException;
 }

@@ -80,13 +80,13 @@ public class RequestWorkingHourRestController {
     }
 
     @PutMapping("/cancel-request")
-    public RequestWorkingHourDTO cancelRequest(@RequestParam Long requestId) {
+    public RequestWorkingHourDTO cancelRequest(@RequestParam Long requestId) throws ParseException {
         return requestWorkingHourService.updateStatus(new Long[]{requestId}, "CANCEL").get(0);
     }
 
     @PutMapping("/update-status")
     @Secured({"PM", "HR"})
-    public ResponseEntity<List<RequestWorkingHourDTO>> approveOrRejectRequest(@RequestParam String status, @RequestBody Long[] ids) {
+    public ResponseEntity<List<RequestWorkingHourDTO>> approveOrRejectRequest(@RequestParam String status, @RequestBody Long[] ids) throws ParseException {
         if(status.equalsIgnoreCase("APPROVED")||status.equalsIgnoreCase("REJECT"))
             return new ResponseEntity<>(requestWorkingHourService.updateStatus(ids, status), HttpStatus.OK);
         else return new ResponseEntity<>(null,HttpStatus.FORBIDDEN);

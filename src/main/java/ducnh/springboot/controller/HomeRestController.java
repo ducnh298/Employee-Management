@@ -5,6 +5,7 @@ import ducnh.springboot.security.jwt.JWTProvider;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.impl.CustomeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,6 +42,7 @@ public class HomeRestController {
     }
 
     @PostMapping("/authenticate")
+    @CachePut(value = "jwt",key ="{user.username}")
     public JWTResponse authenticate(@RequestBody Map<String, String> user) throws Exception {
         System.out.println("Authenticating...");
         try {

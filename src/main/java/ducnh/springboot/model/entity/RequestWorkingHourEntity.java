@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.time.LocalTime;
 
 @Entity
@@ -24,6 +25,8 @@ public class RequestWorkingHourEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JsonIgnore
     private Status status = Status.PENDING;
+
+    private Date applyDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

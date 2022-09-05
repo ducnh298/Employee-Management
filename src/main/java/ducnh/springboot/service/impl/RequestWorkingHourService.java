@@ -11,6 +11,8 @@ import ducnh.springboot.repository.RequestWorkingHourRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.repository.WorkingHourRepository;
 import ducnh.springboot.service.IRequestWorkingHourService;
+import ducnh.springboot.utils.DateFormat;
+import ducnh.springboot.utils.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,25 +21,29 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class RequestWorkingHourService implements IRequestWorkingHourService {
     @Autowired
-    RequestWorkingHourRepository RequestWorkingHourRepo;
+    RequestWorkingHourRepository requestWorkingHourRepo;
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    WorkingHourRepository workingHourRepository;
 
     @Autowired
     ModelMapper mapper;
 
     @Autowired
     RequestWorkingHourConverter converter;
+
+    @Autowired
+    DateUtils dateUtils;
 
     public void addPropertyMap() {
 //        mapper.addMappings(new PropertyMap<RequestWorkingHourEntity, RequestWorkingHourDTO>() {
@@ -52,15 +58,15 @@ public class RequestWorkingHourService implements IRequestWorkingHourService {
     public RequestWorkingHourDTO save(RequestWorkingHourEntity entity) {
         addPropertyMap();
         if (entity.getId() != null) {
-            RequestWorkingHourEntity old = RequestWorkingHourRepo.findById(entity.getId()).get();
+            RequestWorkingHourEntity old = requestWorkingHourRepo.findById(entity.getId()).get();
             if (old.getStatus().equals(Status.PENDING)) {
                 mapper.map(entity, old);
-                return mapper.map(RequestWorkingHourRepo.save(old), RequestWorkingHourDTO.class);
+                return mapper.map(requestWorkingHourRepo.save(old), RequestWorkingHourDTO.class);
             } else return null;
         } else {
             entity.setUser(userRepository.findById(entity.getUser().getId()).get());
 //            entity.setTimeOff(TimeOff.valueOf(entity.getTimeOff().toString()));
-            return mapper.map(RequestWorkingHourRepo.save(entity), RequestWorkingHourDTO.class);
+            return mapper.map(requestWorkingHourRepo.save(entity), RequestWorkingHourDTO.class);
         }
 
     }
@@ -68,39 +74,39 @@ public class RequestWorkingHourService implements IRequestWorkingHourService {
     @Override
     public List<RequestWorkingHourDTO> findAll(Specification<RequestWorkingHourEntity> spec) {
         addPropertyMap();
-        return converter.toDTOList(RequestWorkingHourRepo.findAll(spec));
+        return converter.toDTOList(requestWorkingHourRepo.findAll(spec));
     }
 
     @Override
     public List<RequestWorkingHourDTO> findByUserId(Long userId) {
         addPropertyMap();
-        return converter.toDTOList(RequestWorkingHourRepo.findByUserId(userId));
+        return converter.toDTOList(requestWorkingHourRepo.findByUserId(userId));
     }
 
     @Override
     public List<RequestWorkingHourDTO> findMyRequestWorkingHour() {
         addPropertyMap();
         UserEntity user = userRepository.findByUsername(UserEntity.class, SecurityContextHolder.getContext().getAuthentication().getName());
-        return converter.toDTOList(RequestWorkingHourRepo.findByUserId(user.getId()));
+        return converter.toDTOList(requestWorkingHourRepo.findByUserId(user.getId()));
     }
 
     @Override
-    public List<RequestWorkingHourDTO> updateStatus(Long[] ids, String status) {
+    public List<RequestWorkingHourDTO> updateStatus(Long[] ids, String status) throws ParseException {
         addPropertyMap();
         List<RequestWorkingHourDTO> result = new ArrayList<>();
         for (Long id : ids) {
-            RequestWorkingHourEntity entity = RequestWorkingHourRepo.findById(id).get();
+            RequestWorkingHourEntity entity = requestWorkingHourRepo.findById(id).get();
             if (!entity.getStatus().equals(Status.CANCEL)) {
                 entity.setStatus(Status.valueOf(status));
-                entity = RequestWorkingHourRepo.save(entity);
+                entity = requestWorkingHourRepo.save(entity);
             }
             result.add(mapper.map(entity, RequestWorkingHourDTO.class));
             if (entity != null && entity.getStatus().equals(Status.APPROVED)) {
-                WorkingHourEntity workingHour = workingHourRepository.findByUserId(entity.getUser().getId());
-                Long workingHourId = workingHour.getId();
-                workingHour = mapper.map(entity,WorkingHourEntity.class);
-                workingHour.setId(workingHourId);
-                workingHourRepository.save(workingHour);
+                Timestamp today = new Timestamp(System.currentTimeMillis());
+//                if (entity.getApplyDate() == null || entity.getApplyDate().compareTo(today) < 0) {
+//                   entity.setApplyDate(new Date(new SimpleDateFormat(DateFormat.y_Md).parse(dateUtils.addDay(today,1).toString()).getTime()));
+//                   requestWorkingHourRepo.save(entity);
+//                }
             }
         }
         return result;

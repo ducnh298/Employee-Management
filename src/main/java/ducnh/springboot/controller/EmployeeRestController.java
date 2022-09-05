@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 import java.util.Optional;
 
@@ -89,7 +90,7 @@ public class EmployeeRestController {
 
     @PostMapping
     @Secured({"HR","PM"})
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserEntity user) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserEntity user) {
         UserDTO dto = userService.save(user);
         if (dto != null) {
             StringBuilder content = new StringBuilder();
@@ -106,13 +107,14 @@ public class EmployeeRestController {
             content.append(dto.getWorkingHour().toString());
 //            System.out.println(
                     //mailService.sendMail(dto.getEmail(), " NCC's Employee Account Created ", content.toString()));
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @PutMapping("/{id}")
     @Secured({"HR","PM"})
-    public ResponseEntity<UserDTO> updateEmployee(@RequestBody UserEntity user, @PathVariable Long id) {
+    public ResponseEntity<UserDTO> updateEmployee(@Valid @RequestBody UserEntity user, @PathVariable Long id) {
         user.setId(id);
         return new ResponseEntity<>(userService.save(user), HttpStatus.OK);
     }

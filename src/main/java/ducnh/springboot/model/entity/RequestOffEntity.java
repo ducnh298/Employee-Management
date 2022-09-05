@@ -12,8 +12,9 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
 import java.sql.Date;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "request_off")
@@ -25,9 +26,12 @@ import java.sql.Timestamp;
 public class RequestOffEntity extends BaseEntity {
     @Column(nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date dayOff;
+    @FutureOrPresent
+    @NotBlank(message = "Day off cannot be blank")
+    private Date dayOff ;
+
     @Enumerated(EnumType.STRING)
-    private TimeOff timeOff;
+    private TimeOff timeOff = TimeOff.FULLDAY;
 
     @Enumerated(EnumType.STRING)
     @JsonIgnore

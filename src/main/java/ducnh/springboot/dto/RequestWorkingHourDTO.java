@@ -12,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,8 @@ public class RequestWorkingHourDTO extends BaseDTO {
     private LocalTime startAfternoonTime = LocalTime.of(13, 00);
 
     private LocalTime endAfternoonTime = LocalTime.of(17, 30);
+
+    private Date applyDate;
 
     private Status status = Status.PENDING;
 
