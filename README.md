@@ -11,12 +11,14 @@ Admin:
 - Tìm kiếm/sắp xếp nhân viên theo tên
 - Hiển thị danh sách tất cả nhân viên kèm thông tin giờ checkin/checkout của từng ngày trong khoảng thời gian lựa chọn (default là tuần hiện tại)
 - Hiển thị danh sách lỗi checkin của các nhân viên trong tháng (checkin muộn hoặc không checkin)
+- Approve/Reject request nghỉ,thay đổi giờ làm
 
 
 Employee:
 - Sử dụng mã số đã được cấp để checkin/checkout
 - Hiển thị danh sách checkin/checkout của riêng nhân viên đó trong khoảng thời gian lựa chọn(default là tuần hiện tại) 
--Hiển thị lỗi checkin của riêng nhân viên đó trong tháng
+- Hiển thị lỗi checkin của riêng nhân viên đó trong tháng
+- Request nghỉ sáng/chiều, thay đổi giờ làm
 
 
 note:
