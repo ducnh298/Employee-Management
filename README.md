@@ -1,5 +1,5 @@
-# EmployeeManagement
-Xây dựng trang web quản lý nhân viên gồm các chức năng sau:
+# EmployeeManager
+Trang web quản lý nhân viên gồm các chức năng sau:
 - Đăng ký tài khoản 
 - Login/Logout (Login bằng username/password, Login qua tài khoản google)
 - Phân Quyền Admin và Employee
@@ -21,7 +21,7 @@ Employee:
 - Request nghỉ sáng/chiều, thay đổi giờ làm
 
 
-note:
-- Sử dụng email service(e.g gửi mail cho employee khi employee được create...)
+Note:
+- Gửi mail cho employee khi employee được create.
 - Cronjob gửi mail thông báo quên checkin/checkout hàng ngày.
 - Cronjob gửi mail tổng hợp checkin/checkout và lỗi phạt mỗi tuần cho từng nhân viên. 
