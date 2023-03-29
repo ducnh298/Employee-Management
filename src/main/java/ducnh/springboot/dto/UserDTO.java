@@ -33,4 +33,7 @@ public class UserDTO extends BaseDTO {
 	@JsonIgnore
 	private List<RequestOffDTO> requestsOff;
 
+//	@JsonIgnore
+//	private List<CheckinDTO> checkins;
+
 }

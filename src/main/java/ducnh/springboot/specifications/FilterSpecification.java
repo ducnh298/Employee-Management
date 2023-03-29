@@ -1,14 +1,15 @@
 package ducnh.springboot.specifications;
 
-import ducnh.springboot.model.entity.CheckinEntity;
-import ducnh.springboot.model.entity.RoleEntity;
-import ducnh.springboot.model.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -18,7 +19,10 @@ public class FilterSpecification<T> implements Specification<T> {
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-        if (criteria.getOperation().equals(SearchCriteria.Operation.GREATER_)) {
+        if (criteria.getOperation().equals(SearchCriteria.Operation.BETWEEN)) {
+            return criteriaBuilder.between(
+                    root.get(criteria.getKey()),(Date)criteria.getValue(),(Date)criteria.getValue2());
+        }else if (criteria.getOperation().equals(SearchCriteria.Operation.GREATER_)) {
             return criteriaBuilder.greaterThanOrEqualTo(
                     root.get(criteria.getKey()), criteria.getValue().toString());
         } else if (criteria.getOperation().equals(SearchCriteria.Operation.GREATER)){

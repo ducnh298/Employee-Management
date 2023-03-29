@@ -2,17 +2,20 @@ package ducnh.springboot.service.impl;
 
 import ducnh.springboot.converter.RequestOffConverter;
 import ducnh.springboot.dto.RequestOffDTO;
+import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.enumForEntity.Status;
 import ducnh.springboot.model.entity.RequestOffEntity;
+import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.repository.RequestOffRepository;
 import ducnh.springboot.repository.UserRepository;
 import ducnh.springboot.service.IRequestOffService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,28 +34,30 @@ public class RequestOffService implements IRequestOffService {
     @Autowired
     RequestOffConverter converter;
 
+    public void addPropertyMap() {
+        mapper.addMappings(new PropertyMap<RequestOffEntity, RequestOffDTO>() {
+            @Override
+            protected void configure() {
+                map().setUser(mapper.map(source.getUser(), UserDTO.class));
+            }
+        });
+    }
+
     @Override
     public RequestOffDTO save(RequestOffEntity entity) {
-        if(entity.getId()==null) {
+        if (entity.getId() != null) {
+            RequestOffEntity old = requestOffRepo.findById(entity.getId()).get();
+            if (old.getStatus().equals(Status.PENDING)) {
+                mapper.map(entity, old);
+                return mapper.map(requestOffRepo.save(old), RequestOffDTO.class);
+            }
+            else return null;
+        } else {
             entity.setUser(userRepository.findById(entity.getUser().getId()).get());
 //            entity.setTimeOff(TimeOff.valueOf(entity.getTimeOff().toString()));
             return mapper.map(requestOffRepo.save(entity), RequestOffDTO.class);
         }
-        else {
-            RequestOffEntity old = requestOffRepo.findById(entity.getId()).get();
-            mapper.map(entity,old);
-            return mapper.map(requestOffRepo.save(old),RequestOffDTO.class);
-        }
-    }
 
-    @Override
-    public List<RequestOffDTO> findAllBetween(Timestamp start, Timestamp end) {
-        return converter.toDTOList(requestOffRepo.findByCreatedDateBetween(start,end));
-    }
-
-    @Override
-    public List<RequestOffDTO> findAllByStatus(String status) {
-        return converter.toDTOList(requestOffRepo.findByStatus(Status.valueOf(status)));
     }
 
     @Override
@@ -61,13 +66,27 @@ public class RequestOffService implements IRequestOffService {
     }
 
     @Override
+    public List<RequestOffDTO> findByUserId(Long userId) {
+        return converter.toDTOList(requestOffRepo.findByUserId(userId));
+    }
+
+    @Override
+    public List<RequestOffDTO> findMyRequestOff() {
+        UserEntity user = userRepository.findByUsername(UserEntity.class,SecurityContextHolder.getContext().getAuthentication().getName());
+        return converter.toDTOList(requestOffRepo.findByUserId(user.getId()));
+    }
+
+    @Override
     public List<RequestOffDTO> updateStatus(Long[] ids, String status) {
         List<RequestOffDTO> result = new ArrayList<>();
-        for(Long id:ids){
+        for (Long id : ids) {
             RequestOffEntity entity = requestOffRepo.findById(id).get();
-            entity.setStatus(Status.valueOf(status));
-            result.add(mapper.map(save(entity),RequestOffDTO.class));
+
+            if(!entity.getStatus().equals(Status.CANCEL)||(status.equalsIgnoreCase("CANCEL")&&entity.getStatus().equals(Status.PENDING)))
+                entity.setStatus(Status.valueOf(status));
+            result.add(mapper.map(requestOffRepo.save(entity), RequestOffDTO.class));
         }
         return result;
     }
+
 }

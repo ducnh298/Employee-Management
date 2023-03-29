@@ -1,48 +1,43 @@
 package ducnh.springboot.service.impl;
 
-import java.io.File;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
+import ducnh.springboot.service.IMailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import ducnh.springboot.service.IMailService;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class MailService implements IMailService {
 
-	@Autowired
-	JavaMailSender mailSender;
+    @Autowired
+    JavaMailSender mailSender;
 
-	@Override
-	public String sendMail(String email, String subject, String content) {
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper;
-		try {
-			helper = new MimeMessageHelper(message, true, "utf-8");
-			String htmlMsg = content + "<br><h2><b>Have a nice day!</b><br><font color=purple><b>Komu<b></font></h2>"
-					+ "<br><img src='https://ncc.asia/images/logo/logo.png'>";
-			message.setContent(htmlMsg, "text/html");
+    @Override
+    public String sendMail(String email, String subject, String content) {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper;
+        try {
+            helper = new MimeMessageHelper(message, true, "utf-8");
+            String htmlMsg = content + "<br><h2><b>Have a nice day!</b><br><font color=purple><b>Komu<b></font></h2>"
+                    + "<br><img src='data:image/png;base64,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'>";
+            message.setContent(htmlMsg, "text/html");
 
-			FileSystemResource file = new FileSystemResource(new File("test.txt"));
-			helper.addAttachment("Demo Mail", file);
+//			FileSystemResource file = new FileSystemResource(new File("test.txt"));
+//			helper.addAttachment("Demo Mail", file);
 
-			helper.setTo("barusu2982@gmail.com");
-			helper.setSubject(subject);
+            helper.setTo("barusu2985@gmail.com");
+            helper.setSubject(subject);
 
-			mailSender.send(message);
-			return "Email Sent Sucessfully!";
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "Email sent unsuccessfully!";
+            mailSender.send(message);
+            return "Email Sent Sucessfully!";
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        return "Email sent unsuccessfully!";
 
-	}
+    }
 
 }

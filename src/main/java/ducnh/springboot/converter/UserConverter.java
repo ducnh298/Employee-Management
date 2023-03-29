@@ -28,6 +28,8 @@ public class UserConverter {
             old.setId(entity.getId());
         if (entity.getFullname() != null)
             old.setFullname(entity.getFullname());
+        if (entity.getUsername() != null)
+            old.setUsername(entity.getUsername());
         if (entity.getDateOfBirth() != null)
             old.setDateOfBirth(entity.getDateOfBirth());
         if (entity.getEmail() != null)

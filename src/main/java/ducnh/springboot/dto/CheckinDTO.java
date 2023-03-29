@@ -17,8 +17,7 @@ public class CheckinDTO extends BaseDTO {
 	SimpleDateFormat sdf = new SimpleDateFormat(DateFormat.dMyHms);
 	
 	private String dayOfWeek;
-	
-	@Setter(AccessLevel.NONE)
+
 	@Getter(AccessLevel.NONE)
 	private String checkinTime;
 
@@ -55,17 +54,20 @@ public class CheckinDTO extends BaseDTO {
 		StringBuilder str = new StringBuilder();
 		if (resultTime > 15)
 			str.append("<font color=red>");
-		str.append(dayOfWeek);
-		str.append(" - ");
-		str.append(sdf.format(this.getCreatedDate()) );
+		else if (resultTime < 15)
+			str.append("<font color=green>");
+		str.append(new SimpleDateFormat(DateFormat.Hms).format(this.getCreatedDate()) );
 		str.append(",  ");
 		str.append(status+" ");
 		str.append(resultTime);
 		str.append(" min ");
 		if (resultTime > 15) {
-			str.append(" ==> penalty = 20.000vnd");
+			str.append(" => penalty = 20.000 VND");
 			str.append("</font>");
 		}
+		else if (resultTime < 15)
+			str.append("</font>");
+
 		return str.toString();
 	}
 
@@ -74,10 +76,4 @@ public class CheckinDTO extends BaseDTO {
 		return checkinTime;
 	}
 
-	public void setCheckinTime() {
-		checkinTime = sdf.format(getCreatedDate());
-	}
-
-
-	
 }

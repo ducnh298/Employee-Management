@@ -1,16 +1,12 @@
 package ducnh.springboot.controller;
 
 import ducnh.springboot.dto.UserDTO;
-import ducnh.springboot.dto.WorkingHourDTO;
 import ducnh.springboot.model.entity.UserEntity;
 import ducnh.springboot.service.IMailService;
 import ducnh.springboot.service.IUserService;
-import ducnh.springboot.service.IWorkingHourService;
 import ducnh.springboot.specifications.UserSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -35,21 +31,18 @@ public class EmployeeRestController {
     IMailService mailService;
 
     @GetMapping(value = "/admin")
-    @Secured({"HR"})
     public String adminPage() {
         return "welcome admin";
     }
 
-    @GetMapping("/find/{id}")
-    @Cacheable("user")
-    public UserDTO findById(@PathVariable Long id) {
+    @GetMapping("/find")
+    public UserDTO findById(@RequestParam Long id) {
         return userService.findById(id);
     }
 
     @GetMapping("/find-all")
-    @Cacheable(value = "user", unless = "#result == null")
     public ResponseEntity<Page<UserDTO>> findAll(@RequestParam(value = "orderBy", required = false) Optional<String> orderBy,
-                                                 @RequestParam(value = "page") int page,
+                                                 @RequestParam(value = "page", defaultValue = "1") int page,
                                                  @RequestParam(value = "roleName", required = false) Optional<String> roleName,
                                                  @RequestParam(value = "fullName", required = false) Optional<String> fullName,
                                                  @RequestParam(value = "userName", required = false) Optional<String> userName,
@@ -91,15 +84,14 @@ public class EmployeeRestController {
     }
 
     @PostMapping
-    @Secured("HR")
-    @CachePut(value = "user")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserEntity user) {
+    @Secured({"ROLE_HR", "ROLE_PM"})
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserEntity user) {
         UserDTO dto = userService.save(user);
         if (dto != null) {
             StringBuilder content = new StringBuilder();
             content.append("<h1>Hi ");
             content.append(dto.getFullname());
-            content.append("!</h1><br><h2>Your NCC's account has been created by: ");
+            content.append("!</h1><br><h2>Your account has been created by: ");
             content.append(dto.getCreatedBy());
             content.append(" --- at: ");
             content.append(dto.getCreatedDate());
@@ -109,32 +101,41 @@ public class EmployeeRestController {
             content.append("<br>Your working time: </h2>");
             content.append(dto.getWorkingHour().toString());
 //            System.out.println(
-                    //mailService.sendMail(dto.getEmail(), " NCC's Employee Account Created ", content.toString()));
+            //mailService.sendMail(dto.getEmail(), "Employee Account Created ", content.toString()));
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @PutMapping("/{id}")
-    @Secured("HR")
-    @CachePut(value = "user")
-    public ResponseEntity<UserDTO> updateEmployee(@RequestBody UserEntity user, @PathVariable Long id) {
+    @Secured({"ROLE_HR", "ROLE_PM"})
+    public ResponseEntity<UserDTO> updateEmployee(@Valid @RequestBody UserEntity user, @PathVariable Long id) {
         user.setId(id);
         return new ResponseEntity<>(userService.save(user), HttpStatus.OK);
     }
 
     @DeleteMapping
-    @Secured("HR")
-    @CacheEvict("user")
+    @Secured({"ROLE_HR", "ROLE_PM"})
     public ResponseEntity<String> deleteEmployees(@RequestBody Long[] ids) {
         userService.delete(ids);
         return new ResponseEntity<>("deleted " + ids.length, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-roles")
-    @Secured("HR")
-    @CacheEvict("user")
-    public ResponseEntity<UserDTO> deleteRoles(@RequestParam Long userId,@RequestBody Long[] roleIds) {
-        return new ResponseEntity<>(userService.deleteRoles(userId,roleIds), HttpStatus.OK);
+    @Secured({"ROLE_HR", "ROLE_PM"})
+    public ResponseEntity<UserDTO> deleteRoles(@RequestParam Long id, @RequestBody Long[] roleIds) {
+        return new ResponseEntity<>(userService.deleteRoles(id, roleIds), HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete")
+    public String clearCache(@RequestBody Long id) {
+        userService.delete(new Long[]{id});
+        return "deleted user id = " + id;
+    }
+
+    @DeleteMapping("/clear-cache")
+    @CacheEvict(value = "user", allEntries = true)
+    public String clearCache() {
+        return "Cleared cache!";
+    }
 }

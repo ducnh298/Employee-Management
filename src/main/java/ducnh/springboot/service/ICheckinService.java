@@ -4,21 +4,24 @@ import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.projection.CheckinsCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-@Service
+
 public interface ICheckinService {
-	CheckinDTO save(String code);
+    CheckinDTO save(String code, String username) throws Exception;
 
-	List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id);
+    List<CheckinDTO> findByUserId(Long userId);
 
-	List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate);
+    List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id);
 
-	List<CheckinsCount> countCheckinsByUser();
+    List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate);
 
-	Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String,String> json, Pageable pageable);
+    List<CheckinsCount> countCheckinsByUser();
+
+    Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String, String> json, Pageable pageable);
+
+
 }

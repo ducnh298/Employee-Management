@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-@Service
+
 public interface IUserService {
 	UserDTO save(UserEntity user);
 

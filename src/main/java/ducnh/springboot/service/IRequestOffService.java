@@ -17,11 +17,10 @@ public interface IRequestOffService {
 
     List<RequestOffDTO> findAll(Specification<RequestOffEntity> spec);
 
-    List<RequestOffDTO> findAllBetween(Timestamp start,Timestamp end);
+    List<RequestOffDTO> findByUserId(Long userId);
 
-    List<RequestOffDTO> findAllByStatus(String status);
+    List<RequestOffDTO> findMyRequestOff();
 
     List<RequestOffDTO> updateStatus(Long[] userIds, String status);
-
 
 }

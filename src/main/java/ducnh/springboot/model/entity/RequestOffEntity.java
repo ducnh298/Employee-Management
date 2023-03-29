@@ -10,10 +10,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
+import java.sql.Date;
 
 @Entity
 @Table(name = "request_off")
@@ -25,10 +26,15 @@ import java.sql.Timestamp;
 public class RequestOffEntity extends BaseEntity {
     @Column(nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Timestamp dayOff;
+    @FutureOrPresent
+    @NotBlank(message = "Day off cannot be blank")
+    private Date dayOff ;
+
     @Enumerated(EnumType.STRING)
-    private TimeOff timeOff;
+    private TimeOff timeOff = TimeOff.FULLDAY;
+
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Status status = Status.PENDING;
 
     @ManyToOne

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import ducnh.springboot.dto.RoleDTO;
 import ducnh.springboot.projection.IRoleCount;
 
-@Service
+
 public interface IRoleService {
 	RoleDTO findById(Long id);
 
