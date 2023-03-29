@@ -1,25 +1,23 @@
 package ducnh.springboot.dto;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import ducnh.springboot.utils.DateFormat;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.sql.Timestamp;
 
 @NoArgsConstructor
 @Getter
 @Setter
 public abstract class BaseDTO {
 
+    @JsonIgnore
     private Long id;
 
     @Getter(AccessLevel.NONE)
-	@JsonIgnore
+    @JsonIgnore
     private String createdTime;
 
     @JsonIgnore
@@ -33,13 +31,4 @@ public abstract class BaseDTO {
 
     @JsonIgnore
     private String modifiedBy;
-
-//	public void setCreatedTime(String createdTime) {
-//		this.createdTime = new SimpleDateFormat(DateFormat.dMyHms).format(createdDate);
-//	}
-
-//    public String getCreatedTime() {
-//        createdTime = new SimpleDateFormat(DateFormat.dMyHms).format(createdDate);
-//        return createdTime;
-//    }
 }

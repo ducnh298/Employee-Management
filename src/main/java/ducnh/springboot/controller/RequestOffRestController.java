@@ -15,7 +15,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -30,7 +29,7 @@ public class RequestOffRestController {
     IRequestOffService requestOffService;
 
     @GetMapping("/find-all")
-    @Secured({"HR", "STAFF"})
+    @Secured({"ROLE_HR", "STAFF"})
     public List<RequestOffDTO> findAll(@RequestBody Map<String, Date> json,
                                        @RequestParam(value = "status", required = false) Optional<String> status) throws ParseException {
         Specification<RequestOffEntity> spec = new FilterSpecification<>(new SearchCriteria("id", SearchCriteria.Operation.GREATER, 0));
@@ -38,9 +37,9 @@ public class RequestOffRestController {
             json.put("start", (Date) new SimpleDateFormat(DateFormat.y_Md).parse("2018-08-29"));
         }
         if (json.get("end") == null) {
-            json.put("end",(Date) new SimpleDateFormat(DateFormat.y_Md).parse("2035-08-29"));
+            json.put("end", (Date) new SimpleDateFormat(DateFormat.y_Md).parse("2035-08-29"));
         }
-        if(json.get("start") != null || json.get("end") != null){
+        if (json.get("start") != null || json.get("end") != null) {
             FilterSpecification<RequestOffEntity> spec1 = new FilterSpecification<>(
                     new SearchCriteria("createdDate", SearchCriteria.Operation.BETWEEN,
                             new SimpleDateFormat(DateFormat.y_Md).parse(json.get("start").toString()),
@@ -55,13 +54,13 @@ public class RequestOffRestController {
     }
 
     @GetMapping("/find")
-    @Secured({"HR", "STAFF"})
-    public List<RequestOffDTO> findMyRequestOff(@RequestParam long userId)  throws ParseException {
+    @Secured({"ROLE_HR", "STAFF"})
+    public List<RequestOffDTO> findMyRequestOff(@RequestParam long userId) {
         return requestOffService.findByUserId(userId);
     }
 
     @GetMapping("/find-my-request-off")
-    public List<RequestOffDTO> findMyRequestOff() throws ParseException {
+    public List<RequestOffDTO> findMyRequestOff() {
         return requestOffService.findMyRequestOff();
     }
 
@@ -85,11 +84,11 @@ public class RequestOffRestController {
     }
 
     @PutMapping("/update-status")
-    @Secured({"PM", "HR"})
+    @Secured({"ROLE_PM", "ROLE_HR"})
     public ResponseEntity<List<RequestOffDTO>> approveOrRejectRequest(@RequestParam String status, @RequestBody Long[] ids) {
-        if(status.equalsIgnoreCase("APPROVED")||status.equalsIgnoreCase("REJECT"))
+        if (status.equalsIgnoreCase("APPROVED") || status.equalsIgnoreCase("REJECT"))
             return new ResponseEntity<>(requestOffService.updateStatus(ids, status), HttpStatus.OK);
-        else return new ResponseEntity<>(null,HttpStatus.FORBIDDEN);
+        else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
 }

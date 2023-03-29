@@ -3,11 +3,11 @@ package ducnh.springboot.controller;
 import ducnh.springboot.dto.JWTResponse;
 import ducnh.springboot.security.jwt.JWTProvider;
 import ducnh.springboot.service.IMailService;
-import ducnh.springboot.service.impl.CustomeUserDetailsService;
+import ducnh.springboot.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +30,7 @@ public class HomeRestController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    CustomeUserDetailsService userDetailService;
+    CustomUserDetailsService userDetailService;
 
     @Autowired
     IMailService mailService;
@@ -41,8 +41,12 @@ public class HomeRestController {
         return "Welcome!";
     }
 
+    @GetMapping("/logout")
+    public String logout() {
+        return null;
+    }
+
     @PostMapping("/authenticate")
-    @CachePut(value = "jwt",key ="{user.username}")
     public JWTResponse authenticate(@RequestBody Map<String, String> user) throws Exception {
         System.out.println("Authenticating...");
         try {
@@ -58,8 +62,9 @@ public class HomeRestController {
         return new JWTResponse(token);
     }
 
+    @Secured("ROLE_HR")
     @PostMapping("/sendmail")
-    public ResponseEntity<String> sendEmail(@RequestBody Map<String, String> json) throws MessagingException {
+    public ResponseEntity<String> sendEmail(@RequestBody Map<String, String> json){
         String subject = json.get("subject");
         String content = json.get("content");
 

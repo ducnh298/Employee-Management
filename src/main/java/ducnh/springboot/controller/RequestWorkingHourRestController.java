@@ -7,6 +7,8 @@ import ducnh.springboot.service.IRequestWorkingHourService;
 import ducnh.springboot.specifications.FilterSpecification;
 import ducnh.springboot.specifications.SearchCriteria;
 import ducnh.springboot.utils.DateFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -28,19 +30,21 @@ public class RequestWorkingHourRestController {
     @Autowired
     IRequestWorkingHourService requestWorkingHourService;
 
+    Logger log = LoggerFactory.getLogger(getClass());
+
     @GetMapping("/find-all")
-    @Secured({"HR", "STAFF"})
+    @Secured({"ROLE_HR", "ROLE_STAFF"})
     public List<RequestWorkingHourDTO> findAll(@RequestBody Map<String, Timestamp> json,
-                                       @RequestParam(value = "status", required = false) Optional<String> status) throws ParseException {
+                                               @RequestParam(value = "status", required = false) Optional<String> status) throws ParseException {
         Specification<RequestWorkingHourEntity> spec = new FilterSpecification<>(
                 new SearchCriteria("id", SearchCriteria.Operation.GREATER, 0));
         if (json.get("start") == null) {
-            json.put("start",Timestamp.valueOf("2018-08-29")) ;
+            json.put("start", Timestamp.valueOf("2018-08-29"));
         }
         if (json.get("end") == null) {
-            json.put("end",Timestamp.valueOf("2035-08-29")) ;
+            json.put("end", Timestamp.valueOf("2035-08-29"));
         }
-        if(json.get("start") != null || json.get("end") != null){
+        if (json.get("start") != null || json.get("end") != null) {
             FilterSpecification<RequestWorkingHourEntity> spec1 = new FilterSpecification<>(
                     new SearchCriteria("createdDate", SearchCriteria.Operation.BETWEEN,
                             new SimpleDateFormat(DateFormat.y_Md).parse(json.get("start").toString()),
@@ -55,22 +59,22 @@ public class RequestWorkingHourRestController {
     }
 
     @GetMapping("/find")
-    @Secured({"HR", "STAFF"})
-    public List<RequestWorkingHourDTO> findMyRequestWorkingHour(@RequestParam long userId)  throws ParseException {
+    @Secured({"ROLE_HR", "ROLE_STAFF"})
+    public List<RequestWorkingHourDTO> findMyRequestWorkingHour(@RequestParam long userId){
         return requestWorkingHourService.findByUserId(userId);
     }
 
     @GetMapping("/find-my-request-working-hour")
-    public List<RequestWorkingHourDTO> findMyRequestWorkingHour() throws ParseException {
+    public List<RequestWorkingHourDTO> findMyRequestWorkingHour(){
         return requestWorkingHourService.findMyRequestWorkingHour();
     }
 
     @PostMapping
     public RequestWorkingHourDTO createNewRequest(@RequestBody RequestWorkingHourEntity entity) {
         if (entity == null)
-            System.out.println("entity null");
+            log.info("entity null");
         else
-            System.out.println("user id :" + "\n" + entity);
+            log.info("user id :" + "\n" + entity);
         return requestWorkingHourService.save(entity);
     }
 
@@ -85,11 +89,11 @@ public class RequestWorkingHourRestController {
     }
 
     @PutMapping("/update-status")
-    @Secured({"PM", "HR"})
+    @Secured({"ROLE_PM", "ROLE_HR"})
     public ResponseEntity<List<RequestWorkingHourDTO>> approveOrRejectRequest(@RequestParam String status, @RequestBody Long[] ids) throws ParseException {
-        if(status.equalsIgnoreCase("APPROVED")||status.equalsIgnoreCase("REJECT"))
+        if (status.equalsIgnoreCase("APPROVED") || status.equalsIgnoreCase("REJECT"))
             return new ResponseEntity<>(requestWorkingHourService.updateStatus(ids, status), HttpStatus.OK);
-        else return new ResponseEntity<>(null,HttpStatus.FORBIDDEN);
+        else return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
 }

@@ -23,38 +23,38 @@ public class RoleRestController {
     IRoleService roleService;
 
     @GetMapping("/{id}")
-    @Secured("HR")
+    @Secured("ROLE_HR")
     @Cacheable("role")
     public ResponseEntity<RoleDTO> findById(@PathVariable Long id) {
-        return new ResponseEntity<>(roleService.findById(id),HttpStatus.OK);
+        return new ResponseEntity<>(roleService.findById(id), HttpStatus.OK);
     }
 
     @GetMapping("/find")
-    @Secured("HR")
+    @Secured("ROLE_HR")
     @Cacheable("role")
     public ResponseEntity<Slice<RoleDTO>> findByName(@RequestParam String name, @RequestParam int page) {
-        return new ResponseEntity<>( roleService.findByNameContaining(name, PageRequest.of(page-1,5)),HttpStatus.OK);
+        return new ResponseEntity<>(roleService.findByNameContaining(name, PageRequest.of(page - 1, 5)), HttpStatus.OK);
     }
 
     @GetMapping("/count-em")
-    @Secured("HR")
+    @Secured("ROLE_HR")
     @Cacheable("role")
     public ResponseEntity<List<IRoleCount>> CountEmByRole() {
-        return new ResponseEntity<>(roleService.RoleCountEm(),HttpStatus.OK);
+        return new ResponseEntity<>(roleService.RoleCountEm(), HttpStatus.OK);
     }
 
+    @Secured("ROLE_HR")
     @PostMapping
-    @Secured("HR")
     @CachePut("role")
     public ResponseEntity<RoleDTO> addRole(@RequestBody RoleDTO role) {
         return new ResponseEntity<>(roleService.save(role), HttpStatus.OK);
     }
 
     @DeleteMapping
-    @Secured("HR")
+    @Secured("ROLE_HR")
     @CacheEvict("role")
-    public ResponseEntity<String> deleteRole(@RequestBody Long[] ids){
+    public ResponseEntity<String> deleteRole(@RequestBody Long[] ids) {
 
-        return new ResponseEntity<>("deleted successfully"+roleService.delete(ids)+" roles",HttpStatus.OK);
+        return new ResponseEntity<>("deleted successfully" + roleService.delete(ids) + " roles", HttpStatus.OK);
     }
 }

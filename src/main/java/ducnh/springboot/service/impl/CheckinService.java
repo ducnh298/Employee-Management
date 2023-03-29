@@ -1,5 +1,6 @@
 package ducnh.springboot.service.impl;
 
+import ducnh.springboot.CustomException.CheckinException;
 import ducnh.springboot.converter.CheckinConverter;
 import ducnh.springboot.dto.CheckinDTO;
 import ducnh.springboot.dto.UserDTO;
@@ -17,7 +18,8 @@ import ducnh.springboot.specifications.SearchCriteria;
 import ducnh.springboot.utils.DateFormat;
 import ducnh.springboot.utils.DateUtils;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,121 +37,125 @@ import java.util.Map;
 @Service
 public class CheckinService implements ICheckinService {
 
-	@Autowired
-	UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-	@Autowired
-	ModelMapper mapper;
+    @Autowired
+    ModelMapper mapper;
 
-	@Autowired
-	CheckinRepository checkinRepository;
+    @Autowired
+    CheckinRepository checkinRepository;
 
-	@Autowired
-	RequestOffRepository requestOffRepository;
+    @Autowired
+    RequestOffRepository requestOffRepository;
 
-	@Autowired
-	DateUtils dateUtils;
+    @Autowired
+    DateUtils dateUtils;
 
-	@Autowired
-	CheckinConverter checkinConverter;
+    @Autowired
+    CheckinConverter checkinConverter;
 
-	public void addPropertyMap(){
-		mapper.addMappings(new PropertyMap<CheckinEntity, CheckinDTO>() {
-			@Override
-			protected void configure() {
-				map().setUser(mapper.map(source.getUser(), UserDTO.class));
-			}
-		});
-	}
+    Logger log = LoggerFactory.getLogger(getClass());
 
-	public CheckinDTO save(String checkinCode) {
-		CheckinDTO checkinDTO = new CheckinDTO();
-		LocalDateTime dateTimeNow = LocalDateTime.now();
-		Timestamp dateNow = null;
+    public CheckinDTO save(String checkinCode, String username) throws Exception {
+        CheckinDTO checkinDTO = new CheckinDTO();
+        LocalDateTime dateTimeNow = LocalDateTime.now();
+        Timestamp dateNow = null;
 
-		UserEntity user = userRepository.findByCheckinCode(UserEntity.class, checkinCode);
-		UserDTO userDTO = mapper.map(user, UserDTO.class);
-		checkinDTO.setUser(userDTO);
+        UserEntity user = userRepository.findByCheckinCode(UserEntity.class, checkinCode);
+        System.out.println(user);
 
-		Timestamp dateNowPlus1;
-		List<CheckinDTO> list = new ArrayList<>();
+        if (user == null) {
+            log.error("User with checkin code [{}] not found!", checkinCode);
+            throw new CheckinException("User with checkin code " + checkinCode + " not found!");
+        }
 
-		Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, user));
-		Specification<RequestOffEntity> spec2 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED));
-		Specification<RequestOffEntity> spec3 = null;
+        if (username.equals(user.getUsername())) {
+            UserDTO userDTO = mapper.map(user, UserDTO.class);
+            checkinDTO.setUser(userDTO);
 
-			try {
-				dateNow = 	dateUtils.parseLDT(dateTimeNow,DateFormat.y_Md);
-				dateNowPlus1 = dateUtils.addDay(dateNow,1);
-				list = getCheckinsBetweenDatesById(dateNow, dateNowPlus1, user.getId());
+            Timestamp dateNowPlus1;
+            List<CheckinDTO> list = new ArrayList<>();
 
-				spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.BETWEEN,
-						new SimpleDateFormat(DateFormat.y_Md).parse(dateTimeNow.toString()),
-						new SimpleDateFormat(DateFormat.y_Md).parse(dateNowPlus1.toString())));
+            Specification<RequestOffEntity> spec1 = new FilterSpecification<>(new SearchCriteria("user", SearchCriteria.Operation.EQUAL, user));
+            Specification<RequestOffEntity> spec2 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.EQUAL, Status.APPROVED));
+            Specification<RequestOffEntity> spec3 = null;
 
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+            try {
+                dateNow = dateUtils.parseLDT(dateTimeNow, DateFormat.y_Md);
+                dateNowPlus1 = dateUtils.addDay(dateNow, 1);
+                list = getCheckinsBetweenDatesById(dateNow, dateNowPlus1, user.getId());
 
-		List<RequestOffEntity> requestList = requestOffRepository.findAll(spec1.and(spec2).and(spec3));
-		RequestOffEntity request = null;
-		if(requestList.size()>0)
-			request = requestList.get(0);
-		if (list.size()>0) {
-			int resultTime = dateUtils.checkoutEarly(dateTimeNow,userDTO.getWorkingHour(),request);
-			
-			checkinDTO.setResultTime(resultTime);
-			if (resultTime <= 0)
-				checkinDTO.setStatus("checkout ok");
-			else
-				checkinDTO.setStatus("checkout early");
-		} else {
-			int resultTime = dateUtils.checkinLate(dateTimeNow,userDTO.getWorkingHour(),request);
-			
-			
-			checkinDTO.setResultTime(resultTime);
-			if (resultTime <= 15)
-				checkinDTO.setStatus("checkin ok");
-			else
-				checkinDTO.setStatus("checkin late");
-		}
-		
-		checkinDTO.setDayOfWeek(dateTimeNow.toLocalDate().getDayOfWeek().toString());
-		return mapper.map(checkinRepository.save(mapper.map(checkinDTO, CheckinEntity.class)), CheckinDTO.class);
+                spec2 = new FilterSpecification<>(new SearchCriteria("dayOff", SearchCriteria.Operation.BETWEEN,
+                        new SimpleDateFormat(DateFormat.y_Md).parse(dateTimeNow.toString()),
+                        new SimpleDateFormat(DateFormat.y_Md).parse(dateNowPlus1.toString())));
 
-	}
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
-	@Override
-	public List<CheckinDTO> findByUserId(Long userId) {
-		return checkinConverter.toDTOList(checkinRepository.findByUserId(userId));
-	}
+            List<RequestOffEntity> requestList = requestOffRepository.findAll(spec1.and(spec2).and(spec3));
+            RequestOffEntity request = null;
+            if (requestList.size() > 0)
+                request = requestList.get(0);
+            if (list.size() > 0) {
+                int resultTime = dateUtils.checkoutEarly(dateTimeNow, userDTO.getWorkingHour(), request);
 
-	@Override
-	public List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id) {
-		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDatesById(startDate, endDate, id);
-		return checkinConverter.toDTOList(entities);
-	}
+                checkinDTO.setResultTime(resultTime);
+                if (resultTime <= 0)
+                    checkinDTO.setStatus("checkout ok");
+                else
+                    checkinDTO.setStatus("checkout early");
+            } else {
+                int resultTime = dateUtils.checkinLate(dateTimeNow, userDTO.getWorkingHour(), request);
 
-	@Override
-	public List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate) {
-		List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDates(startDate, endDate);
+                checkinDTO.setResultTime(resultTime);
+                if (resultTime <= 15)
+                    checkinDTO.setStatus("checkin ok");
+                else
+                    checkinDTO.setStatus("checkin late");
+            }
 
-		return checkinConverter.toDTOList(entities);
-	}
+            checkinDTO.setDayOfWeek(dateTimeNow.toLocalDate().getDayOfWeek().toString());
+            return mapper.map(checkinRepository.save(mapper.map(checkinDTO, CheckinEntity.class)), CheckinDTO.class);
+        } else {
+            log.error("You don't have permission to checkin for another user!");
+            throw new CheckinException("You don't have permission to checkin for another user!");
+        }
 
-	@Override
-	public List<CheckinsCount> countCheckinsByUser() {
-		
-		return checkinRepository.countCheckinsByUser();
-	}
+    }
 
-	@Override
-	public  Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String,String> json, Pageable pageable) {
-		FilterSpecification<CheckinEntity> spec1 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.LIKE,"%"+json.get("status")+"%"));
-		FilterSpecification<CheckinEntity> spec2 = new FilterSpecification<>(new SearchCriteria("dayOfWeek", SearchCriteria.Operation.LIKE,json.get("dayOfWeek")+"%"));
-		FilterSpecification<CheckinEntity> spec3 = new FilterSpecification<>(new SearchCriteria("resultTime", SearchCriteria.Operation.GREATER_,json.get("resultTime")));
+    @Override
+    public List<CheckinDTO> findByUserId(Long userId) {
+        return checkinConverter.toDTOList(checkinRepository.findByUserId(userId));
+    }
 
-		return checkinConverter.toDTOPage(checkinRepository.findAll(Specification.where(spec1).and(spec2).and(spec3),pageable));
-	}
+    @Override
+    public List<CheckinDTO> getCheckinsBetweenDatesById(Timestamp startDate, Timestamp endDate, Long id) {
+        List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDatesById(startDate, endDate, id);
+        return checkinConverter.toDTOList(entities);
+    }
+
+    @Override
+    public List<CheckinDTO> getCheckinsBetweenDates(Timestamp startDate, Timestamp endDate) {
+        List<CheckinEntity> entities = checkinRepository.getCheckinsBetweenDates(startDate, endDate);
+
+        return checkinConverter.toDTOList(entities);
+    }
+
+    @Override
+    public List<CheckinsCount> countCheckinsByUser() {
+
+        return checkinRepository.countCheckinsByUser();
+    }
+
+    @Override
+    public Page<CheckinDTO> findByStatusAndDayOfWeekAndResultTime(Map<String, String> json, Pageable pageable) {
+        FilterSpecification<CheckinEntity> spec1 = new FilterSpecification<>(new SearchCriteria("status", SearchCriteria.Operation.LIKE, "%" + json.get("status") + "%"));
+        FilterSpecification<CheckinEntity> spec2 = new FilterSpecification<>(new SearchCriteria("dayOfWeek", SearchCriteria.Operation.LIKE, json.get("dayOfWeek") + "%"));
+        FilterSpecification<CheckinEntity> spec3 = new FilterSpecification<>(new SearchCriteria("resultTime", SearchCriteria.Operation.GREATER_, json.get("resultTime")));
+
+        return checkinConverter.toDTOPage(checkinRepository.findAll(Specification.where(spec1).and(spec2).and(spec3), pageable));
+    }
 
 }

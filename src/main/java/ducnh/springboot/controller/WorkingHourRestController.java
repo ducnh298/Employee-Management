@@ -26,7 +26,7 @@ public class WorkingHourRestController {
 
     @PostMapping("/set")
     @CachePut(value = "workinghour")
-    @Secured("HR")
+    @Secured("ROLE_HR")
     public ResponseEntity<WorkingHourDTO> setWorkingHour(@RequestParam("id") Long id, @RequestBody WorkingHourEntity workingHour) {
         UserEntity user = new UserEntity();
         user.setId(id);

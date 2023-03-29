@@ -1,7 +1,7 @@
 package ducnh.springboot.controller;
 
+import ducnh.springboot.CustomException.CheckinException;
 import ducnh.springboot.dto.CheckinDTO;
-import ducnh.springboot.dto.UserDTO;
 import ducnh.springboot.projection.CheckinsCount;
 import ducnh.springboot.service.ICheckinService;
 import ducnh.springboot.service.IUserService;
@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -22,7 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/checkin")
-@Secured({"HR", "STAFF", "INTERN"})
+@Secured({"ROLE_HR", "ROLE_STAFF", "ROLE_INTERN"})
 public class CheckinRestController {
     @Autowired
     IUserService userService;
@@ -53,17 +55,26 @@ public class CheckinRestController {
     }
 
     @GetMapping(value = "/find-by-status-dayofweek-resulttime")
-    @Secured("HR")
+    @Secured("ROLE_HR")
     @Cacheable("checkin")
     public ResponseEntity<Page<CheckinDTO>> findByStatusAndDayOfWeekAndResultTime(@RequestBody Map<String, String> json, @RequestParam int page) {
         return new ResponseEntity<>(checkinService.findByStatusAndDayOfWeekAndResultTime(json, PageRequest.of(page - 1, 5)), HttpStatus.OK);
     }
 
     @PostMapping
-    @Secured({"HR", "STAFF", "INTERN"})
+    @Secured({"ROLE_HR", "ROLE_STAFF", "ROLE_INTERN"})
     @CachePut("checkin")
-    public ResponseEntity<CheckinDTO> checkin(@RequestBody String checkinCode) {
-        return new ResponseEntity<>(checkinService.save(checkinCode), HttpStatus.OK);
+    public ResponseEntity<Object> checkin(@RequestBody String checkinCode, @AuthenticationPrincipal User user) {
+        try {
+            CheckinDTO result = checkinService.save(checkinCode, user.getUsername());
+            if (result != null)
+                return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (CheckinException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return null;
     }
 
 }

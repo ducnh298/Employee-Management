@@ -25,6 +25,13 @@ public class DateUtils {
         return new Timestamp(c.getTimeInMillis());
     }
 
+    public LocalDateTime addDay(LocalDateTime time, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(Date.from(time.atZone(ZoneId.systemDefault()).toInstant()));
+        c.add(Calendar.DATE, days);
+        return LocalDateTime.ofInstant(c.toInstant(), ZoneId.systemDefault());
+    }
+
     public Timestamp parseLDT(LocalDateTime time, String format) throws ParseException {
         return new Timestamp(new SimpleDateFormat(format).parse(Timestamp.valueOf(time).toString()).getTime());
     }
@@ -42,10 +49,10 @@ public class DateUtils {
 
     public int checkinLate(LocalDateTime time, WorkingHourDTO woDto, RequestOffEntity request) {
         String localDateTimeNow = LocalDate.now() + " " + woDto.getStartMorningTime() + ":00";
-        if(request!=null){
-            if(request.getTimeOff().equals(TimeOff.FULLDAY))
+        if (request != null) {
+            if (request.getTimeOff().equals(TimeOff.FULLDAY))
                 return 0;
-            if(request.getTimeOff().equals(TimeOff.MORNING))
+            if (request.getTimeOff().equals(TimeOff.MORNING))
                 localDateTimeNow = LocalDate.now() + " 13:00:00";
         }
 
@@ -60,13 +67,13 @@ public class DateUtils {
         return (int) (timeNow - workingDateTimeMiliseconds);
     }
 
-    public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto,RequestOffEntity request) {
+    public int checkoutEarly(LocalDateTime time, WorkingHourDTO woDto, RequestOffEntity request) {
         String localDateTimeNow = LocalDate.now() + " " + woDto.getEndAfternoonTime() + ":00";
 
-        if(request!=null){
-            if(request.getTimeOff().equals(TimeOff.FULLDAY))
+        if (request != null) {
+            if (request.getTimeOff().equals(TimeOff.FULLDAY))
                 return 0;
-            if(request.getTimeOff().equals(TimeOff.AFTERNOON))
+            if (request.getTimeOff().equals(TimeOff.AFTERNOON))
                 localDateTimeNow = LocalDate.now() + " 12:00:00";
         }
 
