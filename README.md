@@ -1,7 +1,7 @@
 # EmployeeManager
 Trang web quản lý nhân viên gồm các chức năng sau:
 - Đăng ký tài khoản 
-- Login/Logout (Login bằng username/password, Login qua tài khoản google)
+- Login/Logout
 - Phân Quyền Admin và Employee
 - Checkin/checkout bằng mã nhân viên
 
